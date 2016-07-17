@@ -9,7 +9,7 @@ class LoginManager():
 
     # constructor
     def __init__(self, type, username, password):
-        if type not in LoginType:
+        if type not in LoginManager.LoginType:
             type = "PTC"
         
         self.type = "PTC"
