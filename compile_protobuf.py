@@ -18,7 +18,7 @@ args = parser.parse_args()
 
 # Set defaults
 lang = args.lang or "python"
-out_path = args.out_path or "out"
+out_path = args.out_path or "compiledProto"
 
 # Determine where to store
 proj_root = os.path.abspath("../")
