@@ -5,20 +5,21 @@ import json
 import config
 
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
+
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+
 
 #
 #   Login class manager
 #
 class LoginManager():
-
     LoginType = ["PTC", "Google"]
 
     # constructor
     def __init__(self, type, username, password):
         if type not in LoginManager.LoginType:
             type = "PTC"
-        
+
         self.type = "PTC"
         self.username = username
         self.password = password
@@ -31,17 +32,12 @@ class LoginManager():
 
     # login to server
     def login(self):
-
         if self.type == LoginManager.LoginType[0]:
             return self.login_ptc()
         else:
             return self.login_google()
 
     def login_google(self):
-        #print('[!] Google login for: {}'.format(username))
-        #r1 = perform_master_login(username, password, ANDROID_ID)
-        #r2 = perform_oauth(username, r1.get('Token', ''), ANDROID_ID, SERVICE, APP, CLIENT_SIG)
-        #return r2.get('Auth')
         return False
 
     def login_ptc(self):
@@ -78,12 +74,12 @@ class LoginManager():
         if not access_token:
             return False
 
-        self.setAccessToken(access_token)
+        self.set_access_token(access_token)
         return True
 
     # retrurn accessToken
-    def getAccessToken(self):
+    def get_access_token(self):
         return self.accessToken
 
-    def setAccessToken(self, token):
+    def set_access_token(self, token):
         self.accessToken = token
