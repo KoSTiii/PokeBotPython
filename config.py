@@ -1,0 +1,5 @@
+
+
+POKEGO_USERNAME = "bumbar1"
+POKEGO_PASSWORD = "bumbar1"
+POKEGO_LOGINTYPE = "PTC"
