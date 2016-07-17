@@ -42,12 +42,12 @@ for root, dirnames, filenames in os.walk(proto_path):
             os.makedirs(destination_path)
 
         print("Compiling " + relative_file_path + "..")
-
+        
         command = """{0} --proto_path="{1}" --{2}_out="{3}" "{4}\"""".format(
             protoc_path,
             proto_path,
             lang,
-            destination_path,
+            out_path,
             os.path.abspath(proto_file)
         )
 
