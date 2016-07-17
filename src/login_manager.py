@@ -1,4 +1,11 @@
+import requests
+import re
+import json
 
+import config
+
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 #
 #   Login class manager
@@ -16,10 +23,67 @@ class LoginManager():
         self.username = username
         self.password = password
 
+        self.accessToken = None
+
+        self.session = requests.session()
+        self.session.headers.update({'User-Agent': 'Niantic App'})
+        self.session.verify = False
+
     # login to server
     def login(self):
-        pass
+
+        if self.type == LoginManager.LoginType[0]:
+            return self.login_ptc()
+        else:
+            return self.login_google()
+
+    def login_google(self):
+        #print('[!] Google login for: {}'.format(username))
+        #r1 = perform_master_login(username, password, ANDROID_ID)
+        #r2 = perform_oauth(username, r1.get('Token', ''), ANDROID_ID, SERVICE, APP, CLIENT_SIG)
+        #return r2.get('Auth')
+        return False
+
+    def login_ptc(self):
+        head = {'User-Agent': 'niantic'}
+        r = self.session.get(config.LOGIN_URL, headers=head)
+        jdata = json.loads(r.content.decode('utf-8'))
+        data = {
+            'lt': jdata['lt'],
+            'execution': jdata['execution'],
+            '_eventId': 'submit',
+            'username': self.username,
+            'password': self.password,
+        }
+        r1 = self.session.post(config.LOGIN_URL, data=data, headers=head)
+
+        ticket = None
+        try:
+            ticket = re.sub('.*ticket=', '', r1.history[0].headers['Location'])
+        except Exception as e:
+            print('Error ' + r1.json()['errors'][0])
+            return False
+
+        data1 = {
+            'client_id': 'mobile-app_pokemon-go',
+            'redirect_uri': 'https://www.nianticlabs.com/pokemongo/error',
+            'client_secret': config.PTC_CLIENT_SECRET,
+            'grant_type': 'refresh_token',
+            'code': ticket,
+        }
+        r2 = self.session.post(config.LOGIN_OAUTH, data=data1)
+        access_token = re.sub('&expires.*', '', r2.content.decode('utf-8'))
+        access_token = re.sub('.*access_token=', '', access_token)
+
+        if not access_token:
+            return False
+
+        self.setAccessToken(access_token)
+        return True
 
     # retrurn accessToken
     def getAccessToken(self):
         return self.accessToken
+
+    def setAccessToken(self, token):
+        self.accessToken = token
