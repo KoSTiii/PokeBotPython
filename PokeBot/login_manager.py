@@ -13,14 +13,12 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 #   Login class manager
 #
 class LoginManager():
-    LoginType = ["PTC", "Google"]
+    LoginType = ["ptc", "google"]
 
     # constructor
-    def __init__(self, type, username, password):
-        if type not in LoginManager.LoginType:
-            type = "PTC"
-
-        self.type = "PTC"
+    def __init__(self, service, username, password):
+        self.service = None
+        self.set_service(service)
         self.username = username
         self.password = password
 
@@ -32,7 +30,7 @@ class LoginManager():
 
     # login to server
     def login(self):
-        if self.type == LoginManager.LoginType[0]:
+        if self.service == LoginManager.LoginType[0]:
             return self.login_ptc()
         else:
             return self.login_google()
@@ -57,7 +55,8 @@ class LoginManager():
         try:
             ticket = re.sub('.*ticket=', '', r1.history[0].headers['Location'])
         except Exception as e:
-            print('Error ' + r1.json()['errors'][0])
+            print('Exception in login_ptc()')
+            print(r1.json()['errors'][0])
             return False
 
         data1 = {
@@ -83,3 +82,15 @@ class LoginManager():
 
     def set_access_token(self, token):
         self.accessToken = token
+
+    def get_session(self):
+        return self.session
+
+    def get_service(self):
+        return self.service
+
+    def set_service(self, service):
+        if service not in LoginManager.LoginType:
+            service = LoginManager.LoginType[0]
+
+        self.service = service

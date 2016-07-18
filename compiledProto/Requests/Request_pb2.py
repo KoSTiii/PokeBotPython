@@ -21,13 +21,43 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='Requests/Request.proto',
   package='POGOProtos.Requests',
   syntax='proto3',
-  serialized_pb=_b('\n\x16Requests/Request.proto\x12\x13POGOProtos.Requests\x1a\x1aRequests/RequestType.proto\"Z\n\x07Request\x12\x36\n\x0crequest_type\x18\x01 \x01(\x0e\x32 .POGOProtos.Requests.RequestType\x12\x17\n\x0frequest_message\x18\x02 \x01(\x0cP\x00\x62\x06proto3')
+  serialized_pb=_b('\n\x16Requests/Request.proto\x12\x13POGOProtos.Requests\x1a\x1aRequests/RequestType.proto\"\xaa\x01\n\x07Request\x12\x36\n\x0crequest_type\x18\x01 \x01(\x0e\x32 .POGOProtos.Requests.RequestType\x12\x44\n\x0frequest_message\x18\x02 \x01(\x0b\x32+.POGOProtos.Requests.Request.RequestMessage\x1a!\n\x0eRequestMessage\x12\x0f\n\x07message\x18\x01 \x01(\x0cP\x00\x62\x06proto3')
   ,
   dependencies=[Requests_dot_RequestType__pb2.DESCRIPTOR,])
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 
 
+
+_REQUEST_REQUESTMESSAGE = _descriptor.Descriptor(
+  name='RequestMessage',
+  full_name='POGOProtos.Requests.Request.RequestMessage',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='message', full_name='POGOProtos.Requests.Request.RequestMessage.message', index=0,
+      number=1, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b(""),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=213,
+  serialized_end=246,
+)
 
 _REQUEST = _descriptor.Descriptor(
   name='Request',
@@ -45,15 +75,15 @@ _REQUEST = _descriptor.Descriptor(
       options=None),
     _descriptor.FieldDescriptor(
       name='request_message', full_name='POGOProtos.Requests.Request.request_message', index=1,
-      number=2, type=12, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b(""),
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
   ],
   extensions=[
   ],
-  nested_types=[],
+  nested_types=[_REQUEST_REQUESTMESSAGE, ],
   enum_types=[
   ],
   options=None,
@@ -62,19 +92,29 @@ _REQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=75,
-  serialized_end=165,
+  serialized_start=76,
+  serialized_end=246,
 )
 
+_REQUEST_REQUESTMESSAGE.containing_type = _REQUEST
 _REQUEST.fields_by_name['request_type'].enum_type = Requests_dot_RequestType__pb2._REQUESTTYPE
+_REQUEST.fields_by_name['request_message'].message_type = _REQUEST_REQUESTMESSAGE
 DESCRIPTOR.message_types_by_name['Request'] = _REQUEST
 
 Request = _reflection.GeneratedProtocolMessageType('Request', (_message.Message,), dict(
+
+  RequestMessage = _reflection.GeneratedProtocolMessageType('RequestMessage', (_message.Message,), dict(
+    DESCRIPTOR = _REQUEST_REQUESTMESSAGE,
+    __module__ = 'Requests.Request_pb2'
+    # @@protoc_insertion_point(class_scope:POGOProtos.Requests.Request.RequestMessage)
+    ))
+  ,
   DESCRIPTOR = _REQUEST,
   __module__ = 'Requests.Request_pb2'
   # @@protoc_insertion_point(class_scope:POGOProtos.Requests.Request)
   ))
 _sym_db.RegisterMessage(Request)
+_sym_db.RegisterMessage(Request.RequestMessage)
 
 
 # @@protoc_insertion_point(module_scope)

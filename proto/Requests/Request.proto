@@ -5,5 +5,9 @@ import public "Requests/RequestType.proto";
 
 message Request {
   POGOProtos.Requests.RequestType request_type = 1;
-  bytes request_message = 2;
+  RequestMessage request_message = 2;
+  
+  message RequestMessage {
+	bytes message = 1;
+  }
 }

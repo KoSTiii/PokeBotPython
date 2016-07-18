@@ -22,7 +22,7 @@ out_path = args.out_path or "compiledProto"
 
 # Determine where to store
 proj_root = os.path.abspath("../")
-proto_path = os.path.abspath("protobuf/")
+proto_path = os.path.abspath("proto/")
 out_path = os.path.abspath(out_path)
 
 # Clean up previous
