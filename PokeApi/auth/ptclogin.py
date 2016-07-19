@@ -1,3 +1,5 @@
+import logging
+
 import json
 import re
 import requests
@@ -18,6 +20,11 @@ class PTCLogin(Login):
     LOGIN_OAUTH = 'https://sso.pokemon.com/sso/oauth2.0/accessToken'
     PTC_CLIENT_SECRET = 'w8ScCUXJQc6kXKw8FiOhd8Fixzht18Dq3PEVkUCP5ZPxtgyWsbTvWHFLm2wNY0JR'
 
+    """ Constuctor. initializes base class
+    """
+    def __init__(self):
+        Login.__init__(self)
+    
     """ @retrun provider string for auth object
     """
     def get_provider(self):
@@ -27,6 +34,8 @@ class PTCLogin(Login):
     @return auth object
     """
     def login_user(self, username, password):
+        logging.info('Started logging into ptc services with username=%s' % username)
+
         head = {'User-Agent': 'niantic'}
         r = self.auth.session.get(self.LOGIN_URL, headers=head)
         jdata = json.loads(r.content.decode('utf-8'))
@@ -57,7 +66,9 @@ class PTCLogin(Login):
         access_token = re.sub('.*access_token=', '', access_token)
 
         if not access_token:
+            logging.info('Login failed with ptc login')
             raise exceptions.LoginFailedException('Error getting access token')
 
+        logging.info('Login successed to ptc with username=' + username)
         self.auth.access_token = access_token
         return self.auth

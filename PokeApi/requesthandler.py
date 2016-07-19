@@ -1,6 +1,9 @@
+import logging
+
 from . import POGOProtos_pb2, exceptions
 from .serverrequest import ServerRequest
 from .auth.login import Auth
+from .locations import LocationManager
 
 
 """ Main request handler class for handling all messages to server
@@ -22,6 +25,7 @@ class RequestHandler(object):
         self.requests = []
         self.hasRequests = False
         self.retry_count = 0
+        self.location = None
 
         self.reset_builder()
 
@@ -46,6 +50,7 @@ class RequestHandler(object):
     """
     def send_requests(self):
         if not self.hasRequests:
+            logging.error('trying to send request envelope without requests')
             raise exceptions.IllegalStateException('You are trying to send request envelope without requests')
 
         # delete all request and add new ones
@@ -54,8 +59,16 @@ class RequestHandler(object):
         for request in self.requests:
             self.request_envelope.requests.MergeFrom(request.get_request())
 
-        print('----------------------REQUEST------------------------')
-        print(self.request_envelope)
+        # add location to request envelope
+        if not self.location:
+            logging.error('location is not set')
+            raise exceptions.IllegalStateException('You need to set location')
+        self.request_envelope.latitude = self.location.latitude
+        self.request_envelope.longitude = self.location.longitude
+        self.request_envelope.altitude = self.location.altitude
+
+        logging.debug('----------------------REQUEST------------------------')
+        logging.debug(self.request_envelope)
         
         # start sending
         protobuf = self.request_envelope.SerializeToString()
@@ -64,16 +77,18 @@ class RequestHandler(object):
         response_envelope = POGOProtos_pb2.Networking.Envelopes().ResponseEnvelope()
         response_envelope.ParseFromString(response.content)
         
-        print('----------------------RESPONSE------------------------')
-        print(response_envelope)
+        logging.debug('----------------------RESPONSE------------------------')
+        logging.debug(response_envelope)
 
         # if error occured when sending
         if response_envelope.status_code is 102:
+            logging.error('login expired or failed login')
             raise exceptions.LoginFailedException('Login failed when sending request')
 
         # we get redirection to other api endpoint server
         if response_envelope.api_url is not None and response_envelope.api_url is not '':
             self.api_endpoint = ('https://%s/rpc' % response_envelope.api_url)
+            logging.info('changed api endpoint to: %s', self.api_endpoint)
 
         # we get auth ticket
         if response_envelope.auth_ticket:
@@ -90,6 +105,7 @@ class RequestHandler(object):
             if self.retry_count > 5:
                 raise exceptions.IllegalStateException('Retry count is more than 5 tries. quiting..')
             
+            logging.debug('Retrying sending request envelope to server. status_code=53')
             self.retry_count += 1
             self.send_requests()
 
@@ -100,14 +116,18 @@ class RequestHandler(object):
     """
     def add_request(self, base_request):
         if not isinstance(base_request, ServerRequest):
+            logging.error('request is not instance of ServerRequest')
             raise exceptions.IllegalStateException('Request is not instance of BaseRequest class')
 
+        logging.debug('Added request')
         self.requests.append(base_request)
         self.hasRequests = True
 
     """ set the current location
     """
-    def set_location(self, latitude, longitude, altitude):
-        self.request_envelope.latitude = latitude
-        self.request_envelope.longitude = longitude
-        self.request_envelope.altitude = altitude
+    def set_location(self, location):
+        if not isinstance(location, LocationManager):
+            logging.error('location is not instance of LocationManager')
+            raise exceptions.IllegalStateException('Location is not type of LocationManager')
+        logging.debug('Location successfuly changed')
+        self.location = location

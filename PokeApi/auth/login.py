@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+import logging
 
 import requests
 from .. import POGOProtos_pb2, exceptions
@@ -53,6 +54,7 @@ class Login(ABC):
     @return auth object
     """
     def login_token(self, token):
+        logging.info('Success login with token=%s...' % token)
         self.auth.access_token = token
         return self.auth
 
