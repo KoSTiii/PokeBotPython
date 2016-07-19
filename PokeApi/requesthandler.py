@@ -63,22 +63,28 @@ class RequestHandler(object):
         if not self.location:
             logging.error('location is not set')
             raise exceptions.IllegalStateException('You need to set location')
-        self.request_envelope.latitude = self.location.latitude
-        self.request_envelope.longitude = self.location.longitude
-        self.request_envelope.altitude = self.location.altitude
+        self.request_envelope.latitude = self.location.get_latitude()
+        self.request_envelope.longitude = self.location.get_longitude()
+        self.request_envelope.altitude = self.location.get_altitude()
 
-        logging.debug('----------------------REQUEST------------------------')
-        logging.debug(self.request_envelope)
+        logging.debug('----- REQUEST -----\n%s', self.request_envelope)
         
-        # start sending
-        protobuf = self.request_envelope.SerializeToString()
-        response = self.auth.session.post(self.api_endpoint, data=protobuf, verify=False)
-        # response envelope parsing
-        response_envelope = POGOProtos_pb2.Networking.Envelopes().ResponseEnvelope()
-        response_envelope.ParseFromString(response.content)
-        
-        logging.debug('----------------------RESPONSE------------------------')
-        logging.debug(response_envelope)
+        try:
+            # start sending
+            protobuf = self.request_envelope.SerializeToString()
+            response = self.auth.session.post(self.api_endpoint, data=protobuf, verify=False)
+        except Exception as e:
+            logging.error('Error sending request: %s', e)
+            raise e
+        try:
+            # response envelope parsing
+            response_envelope = POGOProtos_pb2.Networking.Envelopes().ResponseEnvelope()
+            response_envelope.ParseFromString(response.content)
+        except Exception as e:
+            logging.error('Error parsing response envelope: %s', e)
+            raise e
+
+        logging.debug('----- RESPONSE -----\n%s', response_envelope)
 
         # if error occured when sending
         if response_envelope.status_code is 102:
@@ -88,7 +94,7 @@ class RequestHandler(object):
         # we get redirection to other api endpoint server
         if response_envelope.api_url is not None and response_envelope.api_url is not '':
             self.api_endpoint = ('https://%s/rpc' % response_envelope.api_url)
-            logging.info('changed api endpoint to: %s', self.api_endpoint)
+            logging.debug('changed api endpoint to: %s', self.api_endpoint)
 
         # we get auth ticket
         if response_envelope.auth_ticket:
@@ -101,7 +107,7 @@ class RequestHandler(object):
             count += 1
 
         # status_code 53 suposed to be retry. after 5 retries raise exception
-        if response_envelope.status_code is 53:
+        if response_envelope.status_code is 53 or response_envelope.status_code is 52:
             if self.retry_count > 5:
                 raise exceptions.IllegalStateException('Retry count is more than 5 tries. quiting..')
             

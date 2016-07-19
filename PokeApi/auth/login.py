@@ -21,7 +21,7 @@ class Auth(object):
     """
     """
     def __str__(self):
-        return "Provider=%s\nToken=%s" % (str(self.provider), str(self.access_token))
+        return "Provider=%s:Token=%s" % (str(self.provider), str(self.access_token))
 
     """ @return authInfo object from protos with specified parametrs for login
     """
