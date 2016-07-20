@@ -1,16 +1,20 @@
 import logging
 
-import PokeApi
+from PokeApi.auth import PTCLogin, Auth
+from PokeApi.requesthandler import RequestHandler
+from PokeApi.serverrequest import ServerRequest
+from PokeApi.locations import LocationManager
+from PokeApi import POGOProtos
 
 
 logging.basicConfig(format='%(asctime)s:%(levelname)s: %(message)s', level=logging.DEBUG)
 
-#auth = PokeApi.auth.PTCLogin().login_user('bumbar1', 'bumbar1')
-auth = PokeApi.auth.PTCLogin().login_token('TGT-258517-Oflc3jkqpYgE7Xd26sxxpjOM4LXQTGiCnszYevKNQgzmdcOcgf-sso.pokemon.com')
+#auth = PTCLogin().login_user('bumbar1', 'bumbar1')
+auth = PTCLogin().login_token('TGT-258517-Oflc3jkqpYgE7Xd26sxxpjOM4LXQTGiCnszYevKNQgzmdcOcgf-sso.pokemon.com')
 logging.info(auth)
 
-rh = PokeApi.RequestHandler(auth)
-loc = PokeApi.LocationManager(46.23083761, 15.26096731, 201)
+rh = RequestHandler(auth)
+loc = LocationManager(46.23083761, 15.26096731, 201)
 rh.set_location(loc)
 
 player = PokeApi.ServerRequest(PokeApi.POGOProtos_pb2.Networking.Requests.GET_PLAYER)

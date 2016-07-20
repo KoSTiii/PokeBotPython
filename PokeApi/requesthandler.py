@@ -1,10 +1,10 @@
 import logging
 
-from . import POGOProtos_pb2, exceptions
+from . import exceptions
 from .serverrequest import ServerRequest
 from .auth.login import Auth
 from .locations import LocationManager
-
+from .POGOProtos.Networking.Envelopes_pb2 import * 
 
 """ Main request handler class for handling all messages to server
 """
@@ -32,7 +32,7 @@ class RequestHandler(object):
     """ reset the builder and ready for new set of requests
     """
     def reset_builder(self):
-        self.request_envelope = POGOProtos_pb2.Networking.Envelopes().RequestEnvelope()
+        self.request_envelope = POGOProtos.Networking.Envelopes_pb2.Envelopes().RequestEnvelope()
         self.request_envelope.status_code = 2
         self.request_envelope.request_id = 8145806132888207460
 
