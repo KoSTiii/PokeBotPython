@@ -33,7 +33,7 @@ class ServerRequest(object):
         req = self.request.add()
         req.request_type = self.requst_type
         if request_message is not None:
-            req.request_message = bytes(request_message, 'utf-8')
+            req.request_message = bytes(request_message)
 
     """ handle response data from this request
     """
