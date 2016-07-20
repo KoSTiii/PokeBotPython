@@ -5,6 +5,7 @@ from PokeApi.auth import PTCLogin, Auth
 from PokeApi.requesthandler import RequestHandler
 from PokeApi.serverrequest import ServerRequest
 from PokeApi.locations import LocationManager
+from PokeApi.pokeapi import PokeApi
 import POGOProtos
 from POGOProtos.Networking import Requests_pb2, Responses_pb2
 from POGOProtos.Networking.Requests import Messages_pb2
@@ -18,6 +19,7 @@ logging.basicConfig(format='%(asctime)s:%(levelname)s: %(message)s', level=loggi
 auth = PTCLogin().login_token('TGT-663178-avlUsomETSRcfexCsnJRPNsA6BPymzpiRBciDFzscthhlSJfeY-sso.pokemon.com')
 logging.info(auth)
 
+"""
 rh = RequestHandler(auth)
 loc = LocationManager(46.23083761, 15.26096731, 201)
 rh.set_location(loc)
@@ -28,8 +30,13 @@ rh.send_requests()
 
 dataInstance = player.get_structured_data()
 logging.info(dataInstance)
+"""
+
+pokeapi = PokeApi(auth)
+print(pokeapi.get_profile())
 
 # get map object
+"""
 origin = s2sphere.CellId.from_lat_lng(s2sphere.LatLng.from_degrees(loc.latitude, loc.longitude)).parent(15)
 walk = [origin.id()]
 next = origin.next()
@@ -51,3 +58,4 @@ rh.add_request(mapObjects)
 rh.send_requests()
 
 print(mapObjects.get_structured_data())
+"""

@@ -53,7 +53,6 @@ class ServerRequest(object):
 
         # dobimo class name iz vrednosti iz enum npr. GET_PLAYER -> GetPlayerResponse in lahko to vrnemo
         camelCaseResponseName = "".join([to_camel_case(Requests_pb2.RequestType.Name(self.requst_type)), 'Response'])
-        print(camelCaseResponseName)
 
         class_ = getattr(importlib.import_module("POGOProtos.Networking.Responses_pb2"), camelCaseResponseName)
         dataInstance = class_()
