@@ -34,6 +34,12 @@ class ServerRequest(object):
         req.request_type = self.requst_type
         if request_message is not None:
             req.request_message = bytes(request_message)
+    
+    def __str__(self):
+        if self.data is None:
+            return str('RequestType: ' + Requests_pb2.RequestType.Name(self.requst_type))
+        else:
+            return str(self.get_structured_data())
 
     """ handle response data from this request
     """

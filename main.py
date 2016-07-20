@@ -6,7 +6,6 @@ from PokeApi.requesthandler import RequestHandler
 from PokeApi.serverrequest import ServerRequest
 from PokeApi.locations import LocationManager
 from PokeApi.pokeapi import PokeApi
-import POGOProtos
 from POGOProtos.Networking import Requests_pb2, Responses_pb2
 from POGOProtos.Networking.Requests import Messages_pb2
 

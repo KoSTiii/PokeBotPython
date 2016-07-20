@@ -6,9 +6,10 @@ from PokeApi.auth import Auth
 from PokeApi.locations import LocationManager
 from POGOProtos.Networking.Envelopes_pb2 import AuthTicket, ResponseEnvelope, RequestEnvelope, Unknown6
 from POGOProtos.Networking import Requests_pb2
-
 #data imports
 from PokeApi.data.player import *
+
+import s2sphere
 
 
 class PokeApi(object):
@@ -68,3 +69,18 @@ class PokeApi(object):
 
     def get_map_objects(self):
         pass
+
+    """ I have no idea what is happening here
+    """    
+    def get_neighbors(self):
+        origin = s2sphere.CellId.from_lat_lng(s2sphere.LatLng.from_degrees(self.location_manager.latitude, self.location_manager.longitude)).parent(15)
+        walk = [origin.id()]
+        # 10 before and 10 after
+        next = origin.next()
+        prev = origin.prev()
+        for i in range(10):
+            walk.append(prev.id())
+            walk.append(next.id())
+            next = next.next()
+            prev = prev.prev()
+        return walk
