@@ -18,10 +18,9 @@ rh = RequestHandler(auth)
 loc = LocationManager(46.23083761, 15.26096731, 201)
 rh.set_location(loc)
 
-player = ServerRequest(Requests_pb2.GET_PLAYER)
+player = ServerRequest(Requests_pb2.GET_INVENTORY)
 rh.add_request(player)
 rh.send_requests()
 
-playerData = Responses_pb2.GetPlayerResponse()
-playerData.ParseFromString(player.data)
-logging.info(playerData)
+dataInstance = player.get_structured_data()
+logging.info(dataInstance)

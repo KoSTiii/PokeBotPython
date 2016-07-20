@@ -3,7 +3,7 @@ import logging
 
 import requests
 
-import exceptions
+import PokeApi.exceptions
 import POGOProtos.Networking.Envelopes_pb2
 
 
