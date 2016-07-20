@@ -17,10 +17,10 @@ rh = RequestHandler(auth)
 loc = LocationManager(46.23083761, 15.26096731, 201)
 rh.set_location(loc)
 
-player = PokeApi.ServerRequest(PokeApi.POGOProtos_pb2.Networking.Requests.GET_PLAYER)
+player = ServerRequest(POGOProtos.Networking.Requests.GET_PLAYER)
 rh.add_request(player)
 rh.send_requests()
 
-playerData = PokeApi.POGOProtos_pb2.Networking.Responses.GetPlayerResponse()
+playerData = POGOProtos.Networking.Responses.GetPlayerResponse()
 playerData.ParseFromString(player.data)
 logging.info(playerData)
