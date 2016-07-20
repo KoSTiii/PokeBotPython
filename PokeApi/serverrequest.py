@@ -1,4 +1,4 @@
-from . import POGOProtos_pb2
+from POGOProtos.Networking.Envelopes_pb2 import AuthTicket, ResponseEnvelope, RequestEnvelope, Unknown6
 
 """ Base abstract request class
 """
@@ -10,7 +10,7 @@ class ServerRequest(object):
         self.requst_type = request_type
         self.data = None
 
-        self.request = POGOProtos_pb2.Networking.Envelopes().RequestEnvelope().requests
+        self.request = RequestEnvelope().requests
         req = self.request.add()
         req.request_type = self.requst_type
         if request_message is not None:

@@ -2,7 +2,9 @@ from abc import ABC, abstractmethod
 import logging
 
 import requests
-from .. import POGOProtos_pb2, exceptions
+
+import exceptions
+import POGOProtos.Networking.Envelopes_pb2
 
 
 """
@@ -26,7 +28,7 @@ class Auth(object):
     """ @return authInfo object from protos with specified parametrs for login
     """
     def get_auth_info_object(self):
-        authInfo = POGOProtos_pb2.Networking.Envelopes().RequestEnvelope().AuthInfo()
+        authInfo = POGOProtos.Networking.Envelopes_pb2.RequestEnvelope().AuthInfo()
         authInfo.provider = self.provider
         authInfo.token.contents = self.access_token
         authInfo.token.unknown2 = 59

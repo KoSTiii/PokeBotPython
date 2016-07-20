@@ -1,10 +1,10 @@
 import logging
 
-from . import exceptions
-from .serverrequest import ServerRequest
-from .auth.login import Auth
-from .locations import LocationManager
-from .POGOProtos.Networking.Envelopes_pb2 import * 
+from PokeApi import exceptions
+from PokeApi.serverrequest import ServerRequest
+from PokeApi.auth import Auth
+from PokeApi.locations import LocationManager
+from POGOProtos.Networking.Envelopes_pb2 import AuthTicket, ResponseEnvelope, RequestEnvelope, Unknown6
 
 """ Main request handler class for handling all messages to server
 """
@@ -32,7 +32,7 @@ class RequestHandler(object):
     """ reset the builder and ready for new set of requests
     """
     def reset_builder(self):
-        self.request_envelope = POGOProtos.Networking.Envelopes_pb2.Envelopes().RequestEnvelope()
+        self.request_envelope = RequestEnvelope()
         self.request_envelope.status_code = 2
         self.request_envelope.request_id = 8145806132888207460
 
@@ -78,7 +78,7 @@ class RequestHandler(object):
             raise e
         try:
             # response envelope parsing
-            response_envelope = POGOProtos_pb2.Networking.Envelopes().ResponseEnvelope()
+            response_envelope = ResponseEnvelope()
             response_envelope.ParseFromString(response.content)
         except Exception as e:
             logging.error('Error parsing response envelope: %s', e)

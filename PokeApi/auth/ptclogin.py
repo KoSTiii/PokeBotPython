@@ -5,8 +5,8 @@ import re
 import requests
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
-from .login import Login, Auth
-from .. import exceptions
+from PokeApi.auth.login import Login, Auth
+from PokeApi import exceptions
 
 # disable insecure warning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
