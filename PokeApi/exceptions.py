@@ -14,6 +14,17 @@ class LoginFailedException(Exception):
 
 """
 """
+class NotLoggedInException(Exception):
+    
+    def __init__(self, message):
+        self.message = message
+    
+    def __str__(self):
+        return repr(self.message)
+
+
+"""
+"""
 class InvalidAuthenticationException(Exception):
 
     def __init__(self, message):
@@ -37,17 +48,6 @@ class IllegalStateException(Exception):
 """
 """
 class ObjectNotInitialized(Exception):
-
-    def __init__(self, message):
-        self.message = message
-    
-    def __str__(self):
-        return repr(self.message)
-
-
-"""
-"""
-class ServerErrorException(Exception):
 
     def __init__(self, message):
         self.message = message

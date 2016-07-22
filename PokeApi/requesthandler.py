@@ -1,3 +1,4 @@
+import time
 import logging
 
 from PokeApi import exceptions, config
@@ -66,7 +67,7 @@ class RequestHandler(object):
         self.request_envelope.latitude = f2i(self.location.get_latitude())
         self.request_envelope.longitude = f2i(self.location.get_longitude())
         self.request_envelope.altitude = f2i(self.location.get_altitude())
-        import pdb; pdb.set_trace()
+        #import pdb; pdb.set_trace()
 
         logging.debug('----- REQUEST -----\n%s', self.request_envelope)
 
@@ -87,21 +88,34 @@ class RequestHandler(object):
 
         logging.debug('----- RESPONSE -----\n%s', response_envelope)
 
+
+        """ 
+        Handling status codes from server response
+        """
         # not complete message
         if response_envelope.status_code is 100:
             logging.error('Response retuned status code 100 (not complete message)')
-            raise exceptions.ServerErrorException('Server returned status_code=100 (not complete message)')
-
+            raise Exception('Server returned status_code=100 (not complete message)')
         # if error occured when sending
         if response_envelope.status_code is 102:
-            logging.error('login expired or failed login')
-            raise exceptions.LoginFailedException('Login failed when sending request')
-
-
-        # we get redirection to other api endpoint server
-        if response_envelope.api_url is not None and response_envelope.api_url is not '':
+            logging.error('not logged in or expired token')
+            raise exceptions.NotLoggedInException('Not logged in exception')
+        # 52 status code means that we hit the data cap. So we wait 2 seconds and try again
+        if response_envelope.status_code is 52:
+            logging.debug('Hit data cap. waiting 2 secods and try again')
+            time.sleep(2)
+            return self.send_requests()
+        # status_code 53 suposed to be api endpoint change. after 5 retries raise exception (pomeni spremeni server)
+        if response_envelope.status_code is 53:
             self.api_endpoint = ('https://%s/rpc' % response_envelope.api_url)
             logging.debug('changed api endpoint to: %s', self.api_endpoint)
+            return self.send_requests()
+            """
+            # we get redirection to other api endpoint server
+            if response_envelope.api_url is not None and response_envelope.api_url is not '':
+                self.api_endpoint = ('https://%s/rpc' % response_envelope.api_url)
+                logging.debug('changed api endpoint to: %s', self.api_endpoint)
+            """
 
         # we get auth ticket
         if response_envelope.auth_ticket:
@@ -114,16 +128,17 @@ class RequestHandler(object):
             self.requests[count].handleData(data)
             count += 1
 
-        # status_code 53 suposed to be retry. after 5 retries raise exception (pomeni spremeni server)
-        if response_envelope.status_code is 53:
-            logging.debug('Retrying sending request envelope to server. status_code=53')
-            return self.send_requests()
-
-        self.reset_builder()
-
+        # return array of structured data if have multiple request
+        # or return directly structured data if is only one request
         output = []
-        for srv_req in self.requests:
-            output.append(srv_req.get_structured_data)
+        if len(self.requests) == 1:
+            output = self.requests[0].get_structured_data()
+        else:
+            for srv_req in self.requests:
+                output.append(srv_req.get_structured_data())
+
+        # reset the builder and return output msg
+        self.reset_builder()
         return output
 
     """ add new request
