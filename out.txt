@@ -1,0 +1,290 @@
+[success: true
+player_data {
+  creation_timestamp_ms: 1469006098774
+  username: "Bumbar2rus"
+  tutorial_state: LEGAL_SCREEN
+  tutorial_state: AVATAR_SELECTION
+  tutorial_state: POKEMON_CAPTURE
+  tutorial_state: NAME_SELECTION
+  tutorial_state: FIRST_TIME_EXPERIENCE_COMPLETE
+  avatar {
+  }
+  max_pokemon_storage: 250
+  max_item_storage: 350
+  daily_bonus {
+  }
+  equipped_badge {
+  }
+  contact_settings {
+    send_marketing_emails: true
+  }
+  currencies {
+    name: "POKECOIN"
+  }
+  currencies {
+    name: "STARDUST"
+    amount: 1800
+  }
+}
+, success: true
+inventory_delta {
+  new_timestamp_ms: 1469198378139
+  inventory_items {
+    inventory_item_data {
+      pokemon_family {
+        family_id: FAMILY_PIDGEY
+        candy: 28
+      }
+    }
+  }
+  inventory_items {
+    inventory_item_data {
+      pokedex_entry {
+        pokedex_entry_number: 90
+        times_encountered: 1
+        times_captured: 1
+      }
+    }
+  }
+  inventory_items {
+    inventory_item_data {
+      pokemon_family {
+        family_id: FAMILY_RATTATA
+        candy: 4
+      }
+    }
+  }
+  inventory_items {
+    inventory_item_data {
+      pokemon_family {
+        family_id: FAMILY_SPEAROW
+        candy: 8
+      }
+    }
+  }
+  inventory_items {
+    inventory_item_data {
+      pokedex_entry {
+        pokedex_entry_number: 96
+        times_encountered: 2
+        times_captured: 1
+      }
+    }
+  }
+  inventory_items {
+    inventory_item_data {
+      pokemon_family {
+        family_id: FAMILY_SHELLDER
+        candy: 4
+      }
+    }
+  }
+  inventory_items {
+    inventory_item_data {
+      item {
+        item_id: ITEM_INCUBATOR_BASIC_UNLIMITED
+        count: 1
+        unseen: true
+      }
+    }
+  }
+  inventory_items {
+    inventory_item_data {
+      pokemon_data {
+        id: 3502325616129102687
+        is_egg: true
+        captured_cell_id: 5144642399998312448
+        creation_time_ms: 1469108103316
+      }
+    }
+  }
+  inventory_items {
+    inventory_item_data {
+      pokedex_entry {
+        pokedex_entry_number: 133
+        times_encountered: 1
+      }
+    }
+  }
+  inventory_items {
+    inventory_item_data {
+      pokemon_family {
+        family_id: FAMILY_DROWZEE
+        candy: 4
+      }
+    }
+  }
+  inventory_items {
+    inventory_item_data {
+      pokedex_entry {
+        pokedex_entry_number: 41
+        times_encountered: 2
+        times_captured: 2
+      }
+    }
+  }
+  inventory_items {
+    inventory_item_data {
+      pokemon_family {
+        family_id: FAMILY_ZUBAT
+        candy: 8
+      }
+    }
+  }
+  inventory_items {
+    inventory_item_data {
+      player_stats {
+        level: 4
+        experience: 8420
+        prev_level_xp: 3000
+        next_level_xp: 10000
+        km_walked: 0.27781277894973755
+        pokemons_encountered: 20
+        unique_pokedex_entries: 9
+        pokemons_captured: 18
+        poke_stop_visits: 4
+        pokeballs_thrown: 19
+        pokemon_caught_by_type: "\000\n\000\013\004\000\000\003\000\000\000\001\000\000\001\000\000\000\000"
+      }
+    }
+  }
+  inventory_items {
+    inventory_item_data {
+      pokedex_entry {
+        pokedex_entry_number: 1
+        times_encountered: 1
+        times_captured: 1
+      }
+    }
+  }
+  inventory_items {
+    inventory_item_data {
+      item {
+        item_id: ITEM_POKE_BALL
+        count: 84
+      }
+    }
+  }
+  inventory_items {
+    inventory_item_data {
+      pokemon_family {
+        family_id: FAMILY_BULBASAUR
+        candy: 4
+      }
+    }
+  }
+  inventory_items {
+    inventory_item_data {
+      pokedex_entry {
+        pokedex_entry_number: 10
+        times_encountered: 1
+        times_captured: 1
+      }
+    }
+  }
+  inventory_items {
+    inventory_item_data {
+      pokedex_entry {
+        pokedex_entry_number: 13
+        times_encountered: 2
+        times_captured: 2
+      }
+    }
+  }
+  inventory_items {
+    inventory_item_data {
+      pokedex_entry {
+        pokedex_entry_number: 16
+        times_encountered: 7
+        times_captured: 7
+      }
+    }
+  }
+  inventory_items {
+    inventory_item_data {
+      egg_incubators {
+        egg_incubator {
+          id: "EggIncubatorProto647410150162603188"
+          item_id: ITEM_INCUBATOR_BASIC_UNLIMITED
+          incubator_type: INCUBATOR_DISTANCE
+          pokemon_id: 3502325616129102687
+          start_km_walked: 0.27781277894973755
+          target_km_walked: 2.2778127789497375
+        }
+      }
+    }
+  }
+  inventory_items {
+    inventory_item_data {
+      pokemon_family {
+        family_id: FAMILY_CATERPIE
+        candy: 4
+      }
+    }
+  }
+  inventory_items {
+    inventory_item_data {
+      pokedex_entry {
+        pokedex_entry_number: 19
+        times_encountered: 1
+        times_captured: 1
+      }
+    }
+  }
+  inventory_items {
+    inventory_item_data {
+      item {
+        item_id: ITEM_INCENSE_ORDINARY
+        count: 2
+        unseen: true
+      }
+    }
+  }
+  inventory_items {
+    inventory_item_data {
+      pokemon_family {
+        family_id: FAMILY_WEEDLE
+        candy: 8
+      }
+    }
+  }
+  inventory_items {
+    inventory_item_data {
+      pokedex_entry {
+        pokedex_entry_number: 21
+        times_encountered: 2
+        times_captured: 2
+      }
+    }
+  }
+}
+, success: true
+, hash: "05daf51635c82611d1aac95c0b051d3ec088a930"
+settings {
+  fort_settings {
+    interaction_range_meters: 40.0
+    max_total_deployed_pokemon: 10
+    max_player_deployed_pokemon: 1
+    deploy_stamina_multiplier: 2.0
+    far_interaction_range_meters: 1000.0
+  }
+  map_settings {
+    pokemon_visible_range: 100.0
+    poke_nav_range_meters: 201.0
+    encounter_range_meters: 50.0
+    get_map_objects_min_refresh_seconds: 5.0
+    get_map_objects_max_refresh_seconds: 30.0
+    get_map_objects_min_distance_meters: 10.0
+    google_maps_api_key: "AIzaSyDF9rkP8lhcddBtvH9gVFzjnNo13WtmJIM"
+  }
+  inventory_settings {
+    max_pokemon: 1000
+    max_bag_items: 1000
+    base_pokemon: 250
+    base_bag_items: 350
+    base_eggs: 9
+  }
+  minimum_client_version: "0.29.0"
+}
+, success: true
+]

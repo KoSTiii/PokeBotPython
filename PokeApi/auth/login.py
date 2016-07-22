@@ -31,7 +31,7 @@ class Auth(object):
         authInfo = POGOProtos.Networking.Envelopes_pb2.RequestEnvelope().AuthInfo()
         authInfo.provider = self.provider
         authInfo.token.contents = self.access_token
-        authInfo.token.unknown2 = 59
+        authInfo.token.unknown2 = 14
 
         return authInfo
 

@@ -39,8 +39,8 @@ class RequestHandler(object):
         if self.last_auth_ticket and self.last_auth_ticket.expire_timestamp_ms > 0:
             self.request_envelope.auth_ticket.CopyFrom(self.last_auth_ticket)
         else:
-            self.request_envelope.unknown12 = 989
             self.request_envelope.auth_info.CopyFrom(self.auth.get_auth_info_object())
+        self.request_envelope.unknown12 = 989
 
         self.requests = []
         self.hasRequests = False
@@ -65,7 +65,7 @@ class RequestHandler(object):
             raise exceptions.IllegalStateException('You need to set location')
         self.request_envelope.latitude = f2i(self.location.get_latitude())
         self.request_envelope.longitude = f2i(self.location.get_longitude())
-        self.request_envelope.altitude = f2i(self.location.get_altitude())
+        self.request_envelope.altitude = f2i(self.location.get_altitude()) + 1
 
         logging.debug('----- REQUEST -----\n%s', self.request_envelope)
         
