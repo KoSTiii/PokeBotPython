@@ -17,7 +17,7 @@ class LocationManager(object):
 
     """ constructor to set location
     """
-    def __init__(self, latitude=None, longitude=None, altitude=0):
+    def __init__(self, latitude=0, longitude=0, altitude=0):
         self.latitude = latitude
         self.longitude = longitude
         self.altitude = altitude
@@ -25,12 +25,12 @@ class LocationManager(object):
     """ @ return latitude as integer
     """
     def get_latitude(self):
-        return f2i(self.latitude)
+        return self.latitude
 
     """ @return longitude as integer
     """
     def get_longitude(self):
-        return f2i(self.longitude)
+        return self.longitude
 
     """ @return altitude 
     """  

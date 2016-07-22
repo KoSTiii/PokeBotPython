@@ -1,4 +1,4 @@
-from PokeApi import exceptions
+from PokeApi import exceptions, mapobjects
 from PokeApi.auth import PTCLogin, Auth
 from PokeApi.requesthandler import RequestHandler
 from PokeApi.serverrequest import ServerRequest
@@ -17,10 +17,10 @@ class PokeApi(object):
 
     """
     """
-    def __init__(self, auth):
+    def __init__(self, auth, location):
         self.auth = auth
         self.request_handler = RequestHandler(auth)
-        self.location_manager = LocationManager(46.23083761, 15.26096731, 0)
+        self.location_manager = location
 
         self.request_handler.set_location(self.location_manager)
 
@@ -80,19 +80,5 @@ class PokeApi(object):
         return inv.get_structured_data()
 
     def get_map_objects(self):
-        pass
-
-    """ I have no idea what is happening here
-    """    
-    def get_neighbors(self):
-        origin = s2sphere.CellId.from_lat_lng(s2sphere.LatLng.from_degrees(self.location_manager.latitude, self.location_manager.longitude)).parent(15)
-        walk = [origin.id()]
-        # 10 before and 10 after
-        next = origin.next()
-        prev = origin.prev()
-        for i in range(10):
-            walk.append(prev.id())
-            walk.append(next.id())
-            next = next.next()
-            prev = prev.prev()
-        return walk
+        map_cells = mapobjects.get_map_objects(self.request_handler, self.location_manager)
+        return map_cells

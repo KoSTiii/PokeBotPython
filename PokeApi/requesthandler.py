@@ -3,7 +3,7 @@ import logging
 from PokeApi import exceptions
 from PokeApi.serverrequest import ServerRequest
 from PokeApi.auth import Auth
-from PokeApi.locations import LocationManager
+from PokeApi.locations import LocationManager, f2i
 from POGOProtos.Networking.Envelopes_pb2 import AuthTicket, ResponseEnvelope, RequestEnvelope, Unknown6
 
 """ Main request handler class for handling all messages to server
@@ -36,11 +36,11 @@ class RequestHandler(object):
         self.request_envelope.status_code = 2
         self.request_envelope.request_id = 8145806132888207460
 
-        self.request_envelope.unknown12 = 989
-        self.request_envelope.auth_info.CopyFrom(self.auth.get_auth_info_object())
-
         if self.last_auth_ticket and self.last_auth_ticket.expire_timestamp_ms > 0:
             self.request_envelope.auth_ticket.CopyFrom(self.last_auth_ticket)
+        else:
+            self.request_envelope.unknown12 = 989
+            self.request_envelope.auth_info.CopyFrom(self.auth.get_auth_info_object())
 
         self.requests = []
         self.hasRequests = False
@@ -63,9 +63,9 @@ class RequestHandler(object):
         if not self.location:
             logging.error('location is not set')
             raise exceptions.IllegalStateException('You need to set location')
-        self.request_envelope.latitude = self.location.get_latitude()
-        self.request_envelope.longitude = self.location.get_longitude()
-        self.request_envelope.altitude = self.location.get_altitude()
+        self.request_envelope.latitude = f2i(self.location.get_latitude())
+        self.request_envelope.longitude = f2i(self.location.get_longitude())
+        self.request_envelope.altitude = f2i(self.location.get_altitude())
 
         logging.debug('----- REQUEST -----\n%s', self.request_envelope)
         
@@ -90,6 +90,10 @@ class RequestHandler(object):
         if response_envelope.status_code is 102:
             logging.error('login expired or failed login')
             raise exceptions.LoginFailedException('Login failed when sending request')
+
+        if response_envelope.status_code is 100:
+            logging.error('Response retuned status code 100 (mislim da error?)')
+            raise exceptions.ServerErrorException('Server returned status_code=100 (error)')
 
         # we get redirection to other api endpoint server
         if response_envelope.api_url is not None and response_envelope.api_url is not '':

@@ -12,24 +12,6 @@ from PokeApi.serverrequest import ServerRequest
 from PokeApi.locations import LocationManager
 
 
-def f2i(float):
-    return struct.unpack('<Q', struct.pack('<d', float))[0]
-
-
-def f2h(float):
-    return hex(struct.unpack('<Q', struct.pack('<d', float))[0])
-
-
-def h2f(hex):
-    return struct.unpack('<d', struct.pack('<Q', int(hex,16)))[0]
-
-
-def encode(cellid):
-    output = []
-    encoder._VarintEncoder()(output.append, cellid)
-    return ''.join(str(o) for o in output)
-
-
 def get_cellid(lat, long):
     origin = CellId.from_lat_lng(LatLng.from_degrees(lat, long)).parent(15)
     walk = [origin.id()]
@@ -44,11 +26,12 @@ def get_cellid(lat, long):
         prev = prev.prev()
     return sorted(walk)
 
+
 """ dobi krog okoli centra tocke
 """
 def get_neighbours(lat, long):
     ns = 0.0025
-    ew = 0.0025 
+    ew = 0.0025
     walk = []
     for i in range(-2, 3):
         for j in range(-2, 3):
@@ -58,9 +41,11 @@ def get_neighbours(lat, long):
     return sorted(walk)
 
 
-def map_object_request(auth, cellids, loc):
-    rh = RequestHandler(auth)
-    rh.set_location(loc)
+""" Map object request to the server
+@return object of GetMapObjectResponse
+"""
+def map_object_request(req_hand, cellids, loc):
+    req_hand.set_location(loc)
 
     # create mesasge
     mapObjectMessage = Messages_pb2.GetMapObjectsMessage()
@@ -71,38 +56,39 @@ def map_object_request(auth, cellids, loc):
 
     # create server request
     mapObjects = ServerRequest(Requests_pb2.GET_MAP_OBJECTS, mapObjectMessage.SerializeToString())
-    rh.add_request(mapObjects)
-    rh.send_requests()
+    req_hand.add_request(mapObjects)
+
+    tryAgain = True
+    while tryAgain:
+        try:
+            req_hand.send_requests()
+            tryAgain = False
+        except Exception as e:
+            time.sleep(2000)
+
 
     # get response
     mapObjectResponse = mapObjects.get_structured_data()
     print(mapObjectResponse)
     return mapObjectResponse
 
-def get_map_objects(auth, loc):
 
-    parentCls = CellId.from_lat_lng(LatLng.from_degrees(loc.latitude, loc.longitude)).parent(15)
+""" get all objects from server
+"""
+def get_map_objects(req_hand, loc):
+    # get cells id
     parentCells = get_cellid(loc.latitude, loc.longitude)
-    mapObjectResponse = map_object_request(auth, parentCells, loc)
+    mapObjectResponse = map_object_request(req_hand, parentCells, loc)
 
-    originalLoc = LocationManager(loc.latitude, loc.longitude)
-
-    mapResponses = [mapObjectResponse]
-    for child in parentCls.children():
-        latlng = LatLng.from_point(Cell(child).get_center())
-        newLoc = LocationManager(latlng.lat().degrees, latlng.lng().degrees)
-        mapResponses.append(map_object_request(auth, get_cellid(newLoc.latitude, newLoc.longitude), newLoc))
-
-    for response in mapResponses:
-        print(response)
-        """if response.nearby_pokemons:
+    for map_cell in mapObjectResponse.map_cells:
+        print(map_cell)
+        if map_cell.nearby_pokemons:
             print('le pokemon')
-        if response.catchable_pokemons:
+        if map_cell.catchable_pokemons:
             print('catchable pokemon')
-        if response.wild_pokemons:
+        if map_cell.wild_pokemons:
             print('wild pokemon')
-        if response.forts:
+        if map_cell.forts:
             print('le gyms')
-        """
     
     return mapObjectResponse.map_cells
