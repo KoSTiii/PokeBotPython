@@ -11,7 +11,8 @@ from PokeApi.requesthandler import RequestHandler
 from PokeApi.serverrequest import ServerRequest
 from PokeApi.locations import LocationManager, f2i
 
-
+""" Cell id level settings
+"""
 # S2 algorith cell level
 S2_CELL_LEVEL = 15
 
@@ -70,44 +71,3 @@ def get_neighbours_circular(lat, lng):
             neighbors.add(cell2.id())
 
     return neighbors
-
-
-""" Map object request to the server
-@return object of GetMapObjectResponse
-"""
-def map_object_request(req_hand, cellids, loc):
-    # create mesasge
-    mapObjectMessage = Messages_pb2.GetMapObjectsMessage()
-    mapObjectMessage.cell_id.extend(cellids)
-    mapObjectMessage.since_timestamp_ms.extend([0] * len(cellids))
-    mapObjectMessage.latitude = f2i(loc.get_latitude())
-    mapObjectMessage.longitude = f2i(loc.get_longitude())
-
-    # create server request
-    mapObjects = ServerRequest(Requests_pb2.GET_MAP_OBJECTS, mapObjectMessage)
-    req_hand.add_request(mapObjects)
-    
-    # return response
-    mapObjectResponse = req_hand.send_requests()
-    return mapObjectResponse
-
-
-""" get all objects from server
-"""
-def get_map_objects(req_hand, loc):
-    # get cells id
-    parentCells = get_neighbours_circular(loc.latitude, loc.longitude)
-    mapObjectResponse = map_object_request(req_hand, parentCells, loc)
-
-    for map_cell in mapObjectResponse.map_cells:
-        print(map_cell)
-        if map_cell.nearby_pokemons:
-            print('le pokemon')
-        if map_cell.catchable_pokemons:
-            print('catchable pokemon')
-        if map_cell.wild_pokemons:
-            print('wild pokemon')
-        if map_cell.forts:
-            print('le gyms')
-    
-    return mapObjectResponse.map_cells
