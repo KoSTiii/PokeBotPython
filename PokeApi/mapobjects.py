@@ -55,16 +55,9 @@ def map_object_request(req_hand, cellids, loc):
     mapObjectMessage.longitude = loc.get_longitude()
 
     # create server request
-    mapObjects = ServerRequest(Requests_pb2.GET_MAP_OBJECTS, mapObjectMessage.SerializeToString())
+    mapObjects = ServerRequest(Requests_pb2.GET_MAP_OBJECTS, mapObjectMessage)
     req_hand.add_request(mapObjects)
-
-    tryAgain = True
-    while tryAgain:
-        try:
-            req_hand.send_requests()
-            tryAgain = False
-        except Exception as e:
-            time.sleep(2000)
+    req_hand.send_requests()
 
 
     # get response

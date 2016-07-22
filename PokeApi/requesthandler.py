@@ -34,7 +34,7 @@ class RequestHandler(object):
     def reset_builder(self):
         self.request_envelope = RequestEnvelope()
         self.request_envelope.status_code = 2
-        self.request_envelope.request_id = 8145806132888207460
+        self.request_envelope.request_id = 1469378659230941192
 
         if self.last_auth_ticket and self.last_auth_ticket.expire_timestamp_ms > 0:
             self.request_envelope.auth_ticket.CopyFrom(self.last_auth_ticket)

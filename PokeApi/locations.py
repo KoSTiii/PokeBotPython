@@ -17,7 +17,7 @@ class LocationManager(object):
 
     """ constructor to set location
     """
-    def __init__(self, latitude=0, longitude=0, altitude=0):
+    def __init__(self, latitude=0.0, longitude=0.0, altitude=0.0):
         self.latitude = latitude
         self.longitude = longitude
         self.altitude = altitude

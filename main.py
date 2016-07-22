@@ -16,8 +16,8 @@ from POGOProtos.Networking.Requests import Messages_pb2
 
 logging.basicConfig(format='%(asctime)s:%(levelname)s: %(message)s', level=logging.DEBUG)
 
-#auth = PTCLogin().login_user('bumbar1', 'bumbar1')
-auth = PTCLogin().login_token('TGT-37137-3V2SPa9gqmaWPJ2FwYCbA02xkFgl4FJXvJnffGNagE7t3imFF6-sso.pokemon.com')
+#auth = PTCLogin().login_user('bumbar2', 'bumbar2')
+auth = PTCLogin().login_token('TGT-200432-7F5LX0IYI03mIHevXQHasftKcLxZjegmZWxczF61KdeCCNWWRJ-sso.pokemon.com')
 logging.info(auth)
 
 """
@@ -38,7 +38,6 @@ loc = LocationManager(46.2397495, 15.2677063, 0) # celje
 #loc = LocationManager(46.229257, 15.302431, 0) # teharje krozisce
 
 pokeapi = PokeApi(auth, loc)
-print(pokeapi.get_profile())
-#print(pokeapi.get_player())
+pokeapi.get_profile()
 
 pokeapi.get_map_objects()

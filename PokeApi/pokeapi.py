@@ -30,7 +30,7 @@ class PokeApi(object):
         eggs = ServerRequest(Requests_pb2.GET_HATCHED_EGGS)
         settMessage = Messages_pb2.DownloadSettingsMessage()
         settMessage.hash = '05daf51635c82611d1aac95c0b051d3ec088a930'
-        sett = ServerRequest(Requests_pb2.DOWNLOAD_SETTINGS, settMessage.SerializeToString())
+        sett = ServerRequest(Requests_pb2.DOWNLOAD_SETTINGS, settMessage)
         badges = ServerRequest(Requests_pb2.CHECK_AWARDED_BADGES)
         
         self.request_handler.add_request(player)
