@@ -34,6 +34,7 @@ def get_cellid(lat, long):
 """ dobi krog okoli centra tocke
 """
 def get_neighbours(lat, long):
+    # ns = north east, ew = east west (ratio between 1 feet and degree) its different on diferent places on earth (sphere)!!
     ns = 0.0025
     ew = 0.0025
     walk = []
@@ -75,8 +76,6 @@ def get_neighbours_circular(lat, lng):
 @return object of GetMapObjectResponse
 """
 def map_object_request(req_hand, cellids, loc):
-    #req_hand.set_location(loc)
-
     # create mesasge
     mapObjectMessage = Messages_pb2.GetMapObjectsMessage()
     mapObjectMessage.cell_id.extend(cellids)
@@ -88,10 +87,8 @@ def map_object_request(req_hand, cellids, loc):
     mapObjects = ServerRequest(Requests_pb2.GET_MAP_OBJECTS, mapObjectMessage)
     req_hand.add_request(mapObjects)
     
+    # return response
     mapObjectResponse = req_hand.send_requests()
-
-    # get response
-    #mapObjectResponse = mapObjects.get_structured_data()
     return mapObjectResponse
 
 

@@ -16,12 +16,12 @@ from POGOProtos.Networking.Requests import Messages_pb2
 logging.basicConfig(format='%(asctime)s:%(levelname)s: %(message)s', level=logging.DEBUG)
 
 #auth = PTCLogin().login_user('bumbar1', 'bumbar1')
-auth = PTCLogin().login_token('TGT-592900-Jcep4VuZgt7LaWC0TdXSCEVkEYJLdsuSi0RUqcWc4vl0cDEYi2-sso.pokemon.com')
+auth = PTCLogin().login_token('TGT-768880-BR92GTh9xjIR6eDpJkj6a6fGvxfPdLk7G7LspmD3KwkjeHNhva-sso.pokemon.com')
 logging.info(auth)
 
 #loc = LocationManager(46.2397495, 15.2677063, 0) # celje
 #loc = LocationManager(46.23083761, 15.26096731, 0) # celje
-loc = LocationManager(46.229257, 15.302431, 0) # teharje krozisce
+loc = LocationManager(46.229257, 15.302431, 1) # teharje krozisce
 
 pokeapi = PokeApi(auth, loc)
 print(pokeapi.get_profile())

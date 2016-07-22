@@ -102,8 +102,8 @@ class RequestHandler(object):
             raise exceptions.NotLoggedInException('Not logged in exception')
         # 52 status code means that we hit the data cap. So we wait 2 seconds and try again
         if response_envelope.status_code is 52:
-            logging.debug('Hit data cap. waiting 2 secods and try again')
-            time.sleep(2)
+            logging.debug('Hit data cap. waiting 5 secods and try again')
+            time.sleep(5)
             return self.send_requests()
         # status_code 53 suposed to be api endpoint change. after 5 retries raise exception (pomeni spremeni server)
         if response_envelope.status_code is 53:
