@@ -16,8 +16,8 @@ from POGOProtos.Networking.Requests import Messages_pb2
 
 logging.basicConfig(format='%(asctime)s:%(levelname)s: %(message)s', level=logging.DEBUG)
 
-#auth = PTCLogin().login_user('bumbar2', 'bumbar2')
-auth = PTCLogin().login_token('TGT-200432-7F5LX0IYI03mIHevXQHasftKcLxZjegmZWxczF61KdeCCNWWRJ-sso.pokemon.com')
+#auth = PTCLogin().login_user('bumbar1', 'bumbar1')
+auth = PTCLogin().login_token('TGT-229174-ps9GoDJjzIvNqoxZjoYapYdmhfenNAWluodFbUuaKbP15Q3xeA-sso.pokemon.com')
 logging.info(auth)
 
 """

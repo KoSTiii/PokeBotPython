@@ -92,8 +92,8 @@ class RequestHandler(object):
             raise exceptions.LoginFailedException('Login failed when sending request')
 
         if response_envelope.status_code is 100:
-            logging.error('Response retuned status code 100 (mislim da error?)')
-            raise exceptions.ServerErrorException('Server returned status_code=100 (error)')
+            logging.error('Response retuned status code 100 (not complete message)')
+            raise exceptions.ServerErrorException('Server returned status_code=100 (not complete message)')
 
         # we get redirection to other api endpoint server
         if response_envelope.api_url is not None and response_envelope.api_url is not '':
