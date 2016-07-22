@@ -34,6 +34,9 @@ class PTCLogin(Login):
 
         head = {'User-Agent': 'niantic'}
         r = self.auth.session.get(config.LOGIN_URL, headers=head)
+        if r.status_code is not requests.codes.ok:
+            raise exceptions.LoginFailedException('Server seems to be offline')
+
         jdata = json.loads(r.content.decode('utf-8'))
         data = {
             'lt': jdata['lt'],
