@@ -9,7 +9,7 @@ from POGOProtos.Networking import Requests_pb2, Responses_pb2
 from POGOProtos.Networking.Requests import Messages_pb2
 from PokeApi.requesthandler import RequestHandler
 from PokeApi.serverrequest import ServerRequest
-from PokeApi.locations import LocationManager
+from PokeApi.locations import LocationManager, f2i
 
 
 def get_cellid(lat, long):
@@ -45,24 +45,22 @@ def get_neighbours(lat, long):
 @return object of GetMapObjectResponse
 """
 def map_object_request(req_hand, cellids, loc):
-    req_hand.set_location(loc)
+    #req_hand.set_location(loc)
 
     # create mesasge
     mapObjectMessage = Messages_pb2.GetMapObjectsMessage()
     mapObjectMessage.cell_id.extend(cellids)
     mapObjectMessage.since_timestamp_ms.extend([0] * len(cellids))
-    mapObjectMessage.latitude = loc.get_latitude()
-    mapObjectMessage.longitude = loc.get_longitude()
+    mapObjectMessage.latitude = f2i(loc.get_latitude())
+    mapObjectMessage.longitude = f2i(loc.get_longitude())
 
     # create server request
     mapObjects = ServerRequest(Requests_pb2.GET_MAP_OBJECTS, mapObjectMessage)
     req_hand.add_request(mapObjects)
     req_hand.send_requests()
 
-
     # get response
     mapObjectResponse = mapObjects.get_structured_data()
-    print(mapObjectResponse)
     return mapObjectResponse
 
 

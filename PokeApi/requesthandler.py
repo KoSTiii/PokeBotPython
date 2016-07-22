@@ -1,6 +1,6 @@
 import logging
 
-from PokeApi import exceptions
+from PokeApi import exceptions, config
 from PokeApi.serverrequest import ServerRequest
 from PokeApi.auth import Auth
 from PokeApi.locations import LocationManager, f2i
@@ -33,14 +33,14 @@ class RequestHandler(object):
     """
     def reset_builder(self):
         self.request_envelope = RequestEnvelope()
-        self.request_envelope.status_code = 2
-        self.request_envelope.request_id = 1469378659230941192
+        self.request_envelope.status_code = config.REQUEST_ENVELOPE_STATUS_CODE
+        self.request_envelope.request_id = config.REQUEST_ENVELOPE_ID
 
-        if self.last_auth_ticket and self.last_auth_ticket.expire_timestamp_ms > 0:
+        if self.last_auth_ticket is not None and self.last_auth_ticket.expire_timestamp_ms > 0:
             self.request_envelope.auth_ticket.CopyFrom(self.last_auth_ticket)
         else:
             self.request_envelope.auth_info.CopyFrom(self.auth.get_auth_info_object())
-        self.request_envelope.unknown12 = 989
+        self.request_envelope.unknown12 = config.REQUEST_ENVELOPE_UNKNOWN12
 
         self.requests = []
         self.hasRequests = False
@@ -65,10 +65,11 @@ class RequestHandler(object):
             raise exceptions.IllegalStateException('You need to set location')
         self.request_envelope.latitude = f2i(self.location.get_latitude())
         self.request_envelope.longitude = f2i(self.location.get_longitude())
-        self.request_envelope.altitude = f2i(self.location.get_altitude()) + 1
+        self.request_envelope.altitude = f2i(self.location.get_altitude())
+        import pdb; pdb.set_trace()
 
         logging.debug('----- REQUEST -----\n%s', self.request_envelope)
-        
+
         try:
             # start sending
             protobuf = self.request_envelope.SerializeToString()
@@ -86,14 +87,16 @@ class RequestHandler(object):
 
         logging.debug('----- RESPONSE -----\n%s', response_envelope)
 
+        # not complete message
+        if response_envelope.status_code is 100:
+            logging.error('Response retuned status code 100 (not complete message)')
+            raise exceptions.ServerErrorException('Server returned status_code=100 (not complete message)')
+
         # if error occured when sending
         if response_envelope.status_code is 102:
             logging.error('login expired or failed login')
             raise exceptions.LoginFailedException('Login failed when sending request')
 
-        if response_envelope.status_code is 100:
-            logging.error('Response retuned status code 100 (not complete message)')
-            raise exceptions.ServerErrorException('Server returned status_code=100 (not complete message)')
 
         # we get redirection to other api endpoint server
         if response_envelope.api_url is not None and response_envelope.api_url is not '':
@@ -102,6 +105,7 @@ class RequestHandler(object):
 
         # we get auth ticket
         if response_envelope.auth_ticket:
+            logging.info('changed auth ticket')
             self.last_auth_ticket = response_envelope.auth_ticket
 
         # do something with response content
@@ -110,16 +114,17 @@ class RequestHandler(object):
             self.requests[count].handleData(data)
             count += 1
 
-        # status_code 53 suposed to be retry. after 5 retries raise exception
-        if response_envelope.status_code is 53 or response_envelope.status_code is 52:
-            if self.retry_count > 5:
-                raise exceptions.IllegalStateException('Retry count is more than 5 tries. quiting..')
-            
+        # status_code 53 suposed to be retry. after 5 retries raise exception (pomeni spremeni server)
+        if response_envelope.status_code is 53:
             logging.debug('Retrying sending request envelope to server. status_code=53')
-            self.retry_count += 1
-            self.send_requests()
+            return self.send_requests()
 
         self.reset_builder()
+
+        output = []
+        for srv_req in self.requests:
+            output.append(srv_req.get_structured_data)
+        return output
 
     """ add new request
     @param base_request is class BaseRequest

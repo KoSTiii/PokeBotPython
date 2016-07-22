@@ -7,7 +7,7 @@ from requests.packages.urllib3.exceptions import InsecureRequestWarning
 from gpsoauth import perform_master_login, perform_oauth
 
 from PokeApi.auth.login import Login, Auth
-from PokeApi import exceptions
+from PokeApi import exceptions, config
 
 # disable insecure warning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
@@ -16,11 +16,6 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 """ Google Login class for login to pokemon server with google account
 """
 class GoogleLogin(Login):
-
-    GOOGLE_LOGIN_ANDROID_ID = '9774d56d682e549c'
-    GOOGLE_LOGIN_SERVICE= 'audience:server:client_id:848232511240-7so421jotr2609rmqakceuu1luuq0ptb.apps.googleusercontent.com'
-    GOOGLE_LOGIN_APP = 'com.nianticlabs.pokemongo'
-    GOOGLE_LOGIN_CLIENT_SIG = '321187995bc7cdc2b5fc91b11a96e2baa8602c62'
 
     """ Constuctor. initializes base class
     """
@@ -38,8 +33,8 @@ class GoogleLogin(Login):
     def login_user(self, username, password):
         logging.info('Started logging into google services with username=%s' % username)
 
-        login = perform_master_login(username, password, self.GOOGLE_LOGIN_ANDROID_ID)
-        login = perform_oauth(username, login.get('Token', ''), self.GOOGLE_LOGIN_ANDROID_ID, self.GOOGLE_LOGIN_SERVICE, self.GOOGLE_LOGIN_APP, self.GOOGLE_LOGIN_CLIENT_SIG)
+        login = perform_master_login(username, password, config.GOOGLE_LOGIN_ANDROID_ID)
+        login = perform_oauth(username, login.get('Token', ''), config.GOOGLE_LOGIN_ANDROID_ID, config.GOOGLE_LOGIN_SERVICE, config.GOOGLE_LOGIN_APP, config.GOOGLE_LOGIN_CLIENT_SIG)
             
         auth_token = login.get('Auth')
         

@@ -1,3 +1,5 @@
+import time
+
 from PokeApi import exceptions, mapobjects
 from PokeApi.auth import PTCLogin, Auth
 from PokeApi.requesthandler import RequestHandler
@@ -38,9 +40,10 @@ class PokeApi(object):
         self.request_handler.add_request(eggs)
         self.request_handler.add_request(sett)
         self.request_handler.add_request(badges)
-        self.request_handler.send_requests()
 
-        return [player.get_structured_data(), inv.get_structured_data(), eggs.get_structured_data(), sett.get_structured_data(), badges.get_structured_data()]
+        ret = self.request_handler.send_requests()
+
+        return ret #[player.get_structured_data(), inv.get_structured_data(), eggs.get_structured_data(), sett.get_structured_data(), badges.get_structured_data()]
     
     def get_settings(self):
         settMessage = Messages_pb2.DownloadSettingsMessage()
@@ -81,4 +84,3 @@ class PokeApi(object):
 
     def get_map_objects(self):
         map_cells = mapobjects.get_map_objects(self.request_handler, self.location_manager)
-        return map_cells

@@ -3,7 +3,7 @@ import logging
 
 import requests
 
-import PokeApi.exceptions
+from PokeApi import exceptions, config
 import POGOProtos.Networking.Envelopes_pb2
 
 
@@ -31,7 +31,7 @@ class Auth(object):
         authInfo = POGOProtos.Networking.Envelopes_pb2.RequestEnvelope().AuthInfo()
         authInfo.provider = self.provider
         authInfo.token.contents = self.access_token
-        authInfo.token.unknown2 = 14
+        authInfo.token.unknown2 = config.AUTHINFO_TOKEN_UNKNOWN2
 
         return authInfo
 
