@@ -50,7 +50,7 @@ while True:
                     pokeapi.request_handler.add_request(fortReq)
                     res = pokeapi.request_handler.send_requests()
                     print(res)
-                    pprint('FORT CHECKPOINT spined')
+                    print('FORT CHECKPOINT spined')
     
     # sleep for 
     time.sleep(155)
