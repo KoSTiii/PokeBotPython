@@ -42,13 +42,12 @@ class PokeApi(object):
         self.request_handler.add_request(badges)
 
         ret = self.request_handler.send_requests()
-
         return ret #[player.get_structured_data(), inv.get_structured_data(), eggs.get_structured_data(), sett.get_structured_data(), badges.get_structured_data()]
     
     def get_settings(self):
         settMessage = Messages_pb2.DownloadSettingsMessage()
         settMessage.hash = '05daf51635c82611d1aac95c0b051d3ec088a930'
-        sett = ServerRequest(Requests_pb2.DOWNLOAD_SETTINGS)
+        sett = ServerRequest(Requests_pb2.DOWNLOAD_SETTINGS, settMessage)
         self.request_handler.add_request(sett)
         self.request_handler.send_requests()
 
@@ -91,8 +90,8 @@ class PokeApi(object):
         mapObjectMessage = Messages_pb2.GetMapObjectsMessage()
         mapObjectMessage.cell_id.extend(cellids)
         mapObjectMessage.since_timestamp_ms.extend([0] * len(cellids))
-        mapObjectMessage.latitude = f2i(self.location_manager.get_latitude())
-        mapObjectMessage.longitude = f2i(self.location_manager.get_longitude())
+        mapObjectMessage.latitude = self.location_manager.get_latitude() #f2i(self.location_manager.get_latitude())
+        mapObjectMessage.longitude = self.location_manager.get_longitude() #f2i(self.location_manager.get_longitude())
 
         # create server request
         mapObjects = ServerRequest(Requests_pb2.GET_MAP_OBJECTS, mapObjectMessage)
@@ -100,18 +99,20 @@ class PokeApi(object):
         
         # return response
         mapObjectResponse = self.request_handler.send_requests()
+        print(mapObjectResponse)
         return mapObjectResponse
 
 
-    """ get all objects from server
+    """ get all map objects from server
     """
     def get_map_objects(self):
         # get cells id
-        parentCells = get_neighbours_circular(self.location_manager.get_latitude(), self.location_manager.get_longitude())
+        #parentCells = mapobjects.get_neighbours_circular(self.location_manager.get_latitude(), self.location_manager.get_longitude())
+        parentCells = mapobjects.get_cellid(self.location_manager.get_latitude(), self.location_manager.get_longitude())
         mapObjectResponse = self._map_object_request(parentCells)
 
         for map_cell in mapObjectResponse.map_cells:
-            print(map_cell)
+            #print(map_cell)
             if map_cell.nearby_pokemons:
                 print('le pokemon')
             if map_cell.catchable_pokemons:

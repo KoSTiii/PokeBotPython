@@ -35,7 +35,7 @@ class PTCLogin(Login):
         head = {'User-Agent': 'niantic'}
         r = self.auth.session.get(config.LOGIN_URL, headers=head)
         if r.status_code is not requests.codes.ok:
-            raise exceptions.LoginFailedException('Server seems to be offline')
+            raise exceptions.LoginFailedException('Login Server seems to be offline')
 
         jdata = json.loads(r.content.decode('utf-8'))
         data = {
@@ -51,7 +51,7 @@ class PTCLogin(Login):
         try:
             ticket = re.sub('.*ticket=', '', r1.history[0].headers['Location'])
         except Exception as e:
-            raise exceptions.LoginFailedException('Error when getting results from server')
+            raise exceptions.LoginFailedException('Error when getting results from login server')
 
         data1 = {
             'client_id': 'mobile-app_pokemon-go',

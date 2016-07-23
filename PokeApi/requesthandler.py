@@ -64,10 +64,9 @@ class RequestHandler(object):
         if not self.location:
             logging.error('location is not set')
             raise exceptions.IllegalStateException('You need to set location')
-        self.request_envelope.latitude = f2i(self.location.get_latitude())
-        self.request_envelope.longitude = f2i(self.location.get_longitude())
-        self.request_envelope.altitude = f2i(self.location.get_altitude())
-        #import pdb; pdb.set_trace()
+        self.request_envelope.latitude = self.location.get_latitude() #f2i(self.location.get_latitude())
+        self.request_envelope.longitude = self.location.get_longitude() #f2i(self.location.get_longitude())
+        self.request_envelope.altitude = self.location.get_altitude() #f2i(self.location.get_altitude())
 
         logging.debug('----- REQUEST -----\n%s', self.request_envelope)
 
@@ -88,6 +87,11 @@ class RequestHandler(object):
 
         logging.debug('----- RESPONSE -----\n%s', response_envelope)
 
+        # we get auth ticket
+        if response_envelope.HasField('auth_ticket'): #auth_ticket:
+            logging.info('changed auth ticket')
+            self.last_auth_ticket = AuthTicket()
+            self.last_auth_ticket.CopyFrom(response_envelope.auth_ticket)
 
         """ 
         Handling status codes from server response
@@ -116,11 +120,6 @@ class RequestHandler(object):
                 self.api_endpoint = ('https://%s/rpc' % response_envelope.api_url)
                 logging.debug('changed api endpoint to: %s', self.api_endpoint)
             """
-
-        # we get auth ticket
-        if response_envelope.auth_ticket:
-            logging.info('changed auth ticket')
-            self.last_auth_ticket = response_envelope.auth_ticket
 
         # do something with response content
         count = 0
