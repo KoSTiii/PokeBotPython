@@ -41,6 +41,12 @@ class ServerRequest(object):
         else:
             return str(self.get_structured_data())
 
+    """ set request message
+    """
+    def set_request_message(self, request_message):
+        if request_message is not None:
+            self.request_message = request_message.SerializeToString()
+
     """ handle response data from this request
     """
     def handleData(self, data):

@@ -28,6 +28,9 @@ loc = LocationManager(46.229257, 15.302431, 0) # teharje krozisce
 pokeapi = PokeApi(auth, loc)
 pokeapi.get_profile()
 
+pokeapi.download_settings(hash='05daf51635c82611d1aac95c0b051d3ec088a930')
+pokeapi.send_requests()
+
 while True:
     map_cells = pokeapi.get_map_objects()
 
@@ -53,4 +56,4 @@ while True:
                     print('FORT CHECKPOINT spined')
     
     # sleep for 
-    time.sleep(155)
+    time.sleep(60)

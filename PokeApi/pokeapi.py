@@ -1,9 +1,11 @@
 import time
+import logging
+import importlib
 
 from PokeApi import exceptions, mapobjects
 from PokeApi.auth import PTCLogin, Auth
 from PokeApi.requesthandler import RequestHandler
-from PokeApi.serverrequest import ServerRequest
+from PokeApi.serverrequest import ServerRequest, to_camel_case
 from PokeApi.auth import Auth
 from PokeApi.locations import LocationManager, f2i
 from POGOProtos.Networking.Envelopes_pb2 import AuthTicket, ResponseEnvelope, RequestEnvelope, Unknown6
@@ -25,6 +27,43 @@ class PokeApi(object):
         self.location_manager = location
 
         self.request_handler.set_location(self.location_manager)
+
+    """ Tole ful dober zgleda
+    """
+    def __getattr__(self, func):
+        def function(**kwargs):
+            name = func.upper()
+            requestTypeValue = Requests_pb2.RequestType.Value(name)
+            newReq = ServerRequest(requestTypeValue)
+
+            if kwargs:
+                camelCaseMessageName = "".join([to_camel_case(name), 'Message'])
+                class_ = getattr(importlib.import_module("POGOProtos.Networking.Requests.Messages_pb2"), camelCaseMessageName)
+                reqMessage = class_()
+                # add parameters to message class
+                for key, value in kwargs.items():
+                    if not hasattr(reqMessage, key):
+                        raise AttributeError
+                    
+                    setattr(reqMessage, key, value)
+
+                logging.debug("Arguments of '%s': \n\r%s", name, kwargs)
+                newReq.set_request_message(reqMessage)
+            
+            self.request_handler.add_request(newReq)
+            logging.info("Adding '%s' to RequestHandler request", name)
+            return self
+   
+        logging.debug('pokeapi __getattr__ with name: ' + func)
+        if func.upper() in Requests_pb2.RequestType.keys():
+            return function
+        else:
+            raise AttributeError
+
+    """ send requests
+    """
+    def send_requests(self):
+        return self.request_handler.send_requests()
 
     def get_profile(self):
         player = ServerRequest(Requests_pb2.GET_PLAYER)
