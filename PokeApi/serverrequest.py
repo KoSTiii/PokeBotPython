@@ -26,18 +26,18 @@ class ServerRequest(object):
         if request_type not in Requests_pb2.RequestType.values():
             raise exceptions.ObjectNotInitialized('RequestType specified not found in enum')
 
-        self.requst_type = request_type
+        self.request_type = request_type
         self.data = None
 
         self.request = RequestEnvelope().requests
-        req = self.request.add()
-        req.request_type = self.requst_type
-        if request_message is not None:
-            req.request_message = request_message.SerializeToString()
+        self.req = self.request.add()
+
+        self.req.request_type = self.request_type
+        self.set_request_message(request_message)
     
     def __str__(self):
         if self.data is None:
-            return str('RequestType: ' + Requests_pb2.RequestType.Name(self.requst_type))
+            return str('RequestType: ' + Requests_pb2.RequestType.Name(self.request_type))
         else:
             return str(self.get_structured_data())
 
@@ -45,7 +45,7 @@ class ServerRequest(object):
     """
     def set_request_message(self, request_message):
         if request_message is not None:
-            self.request_message = request_message.SerializeToString()
+            self.req.request_message = request_message.SerializeToString()
 
     """ handle response data from this request
     """
@@ -64,7 +64,7 @@ class ServerRequest(object):
             raise exceptions.ObjectNotInitialized('Data not initialized')
 
         # dobimo class name iz vrednosti iz enum npr. GET_PLAYER -> GetPlayerResponse in lahko to vrnemo
-        camelCaseResponseName = "".join([to_camel_case(Requests_pb2.RequestType.Name(self.requst_type)), 'Response'])
+        camelCaseResponseName = "".join([to_camel_case(Requests_pb2.RequestType.Name(self.request_type)), 'Response'])
 
         class_ = getattr(importlib.import_module("POGOProtos.Networking.Responses_pb2"), camelCaseResponseName)
         dataInstance = class_()

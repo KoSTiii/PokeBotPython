@@ -37,7 +37,7 @@ class RequestHandler(object):
         self.request_envelope.status_code = config.REQUEST_ENVELOPE_STATUS_CODE
         self.request_envelope.request_id = config.REQUEST_ENVELOPE_ID
 
-        if self.last_auth_ticket is not None and self.last_auth_ticket.expire_timestamp_ms > 0:
+        if self.last_auth_ticket is not None and self.last_auth_ticket.expire_timestamp_ms > int(round(time.time() * 1000)):
             self.request_envelope.auth_ticket.CopyFrom(self.last_auth_ticket)
         else:
             self.request_envelope.auth_info.CopyFrom(self.auth.get_auth_info_object())

@@ -18,7 +18,7 @@ from POGOProtos.Data import Gym_pb2
 logging.basicConfig(format='%(asctime)s:%(levelname)s: %(message)s', level=logging.DEBUG)
 
 #auth = PTCLogin().login_user('bumbar1', 'bumbar1')
-auth = PTCLogin().login_token('TGT-295844-VnXnz90rXkGogbDDAgT3WLMbob9rckMShmlOZH4udQWkdEyzwA-sso.pokemon.com')
+auth = PTCLogin().login_token('TGT-968499-nbpYE9f5s3RqSq5zSgvkedPtiTFZlej5caJgxfTB6w5SJ2fIHi-sso.pokemon.com')
 logging.info(auth)
 
 #loc = LocationManager(46.2397495, 15.2677063, 0) # celje
@@ -32,7 +32,9 @@ pokeapi.download_settings(hash='05daf51635c82611d1aac95c0b051d3ec088a930')
 pokeapi.send_requests()
 
 while True:
-    map_cells = pokeapi.get_map_objects()
+    #map_cells = pokeapi.get_map_objects(cell_id=[0]*21, since_timestamp_ms=[0]*21, latitude=loc.get_latitude(), longitude=loc.get_longitude())
+    #map_cells = pokeapi.send_requests().map_cells
+    map_cells = pokeapi.get_all_map_objects()
 
     for map_cell in map_cells:
         for fort in map_cell.forts:
@@ -43,15 +45,12 @@ while True:
                 currentTimeMs = int(round(time.time() * 1000))
                 if fort.cooldown_complete_timestamp_ms and fort.cooldown_complete_timestamp_ms < currentTimeMs:
                     # spinamo fort ce ga lahko
-                    fortSearch = Messages_pb2.FortSearchMessage()
-                    fortSearch.fort_id = fort.id
-                    fortSearch.player_latitude = loc.get_latitude()
-                    fortSearch.player_longitude = loc.get_longitude()
-                    fortSearch.fort_latitude = fort.latitude
-                    fortSearch.fort_longitude = fort.longitude
-                    fortReq = ServerRequest(Requests_pb2.FORT_SEARCH, fortSearch)
-                    pokeapi.request_handler.add_request(fortReq)
-                    res = pokeapi.request_handler.send_requests()
+                    pokeapi.fort_search(fort_id=fort.id, 
+                                        player_latitude=loc.get_latitude(), 
+                                        player_longitude=loc.get_longitude(), 
+                                        fort_latitude=fort.latitude, 
+                                        fort_longitude=fort.longitude)
+                    res = pokeapi.send_requests()
                     print(res)
                     print('FORT CHECKPOINT spined')
     

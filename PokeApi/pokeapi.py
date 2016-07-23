@@ -15,6 +15,7 @@ from POGOProtos.Networking.Requests import Messages_pb2
 from PokeApi.data.player import *
 
 import s2sphere
+from google.protobuf.internal.containers import RepeatedScalarFieldContainer
 
 
 class PokeApi(object):
@@ -28,7 +29,7 @@ class PokeApi(object):
 
         self.request_handler.set_location(self.location_manager)
 
-    """ Tole ful dober zgleda
+    """ Tole ful dober zgleda. The magic function
     """
     def __getattr__(self, func):
         def function(**kwargs):
@@ -45,7 +46,12 @@ class PokeApi(object):
                     if not hasattr(reqMessage, key):
                         raise AttributeError
                     
-                    setattr(reqMessage, key, value)
+                    #import pdb; pdb.set_trace()
+                    attr = getattr(reqMessage, key)
+                    if isinstance(attr, RepeatedScalarFieldContainer):
+                        attr.extend(value)
+                    else:
+                        setattr(reqMessage, key, value)
 
                 logging.debug("Arguments of '%s': \n\r%s", name, kwargs)
                 newReq.set_request_message(reqMessage)
@@ -65,6 +71,7 @@ class PokeApi(object):
     def send_requests(self):
         return self.request_handler.send_requests()
 
+    
     def get_profile(self):
         player = ServerRequest(Requests_pb2.GET_PLAYER)
         inv = ServerRequest(Requests_pb2.GET_INVENTORY)
@@ -83,6 +90,7 @@ class PokeApi(object):
         ret = self.request_handler.send_requests()
         return ret #[player.get_structured_data(), inv.get_structured_data(), eggs.get_structured_data(), sett.get_structured_data(), badges.get_structured_data()]
     
+    """
     def get_settings(self):
         settMessage = Messages_pb2.DownloadSettingsMessage()
         settMessage.hash = '05daf51635c82611d1aac95c0b051d3ec088a930'
@@ -97,8 +105,8 @@ class PokeApi(object):
         self.request_handler.add_request(playerReq)
         self.request_handler.send_requests()
 
+        "" "
         response = playerReq.get_structured_data()
-        """
         player = PlayerProfile()
         player.creation_time = response.creation_timestamp_ms
         player.username = response.username
@@ -110,7 +118,7 @@ class PokeApi(object):
         player.daily_bonus = response.daily_bonus
         player.contact_settings = response.contact_settings
         player.currencies = response.currencies
-        """
+        "" "
         return response
 
     def get_inventory(self):
@@ -119,6 +127,7 @@ class PokeApi(object):
         self.request_handler.send_requests()
 
         return inv.get_structured_data()
+    """
 
 
     """ Map object request to the server
@@ -144,7 +153,7 @@ class PokeApi(object):
 
     """ get all map objects from server
     """
-    def get_map_objects(self):
+    def get_all_map_objects(self):
         # get cells id
         parentCells = mapobjects.get_neighbours_circular(self.location_manager.get_latitude(), self.location_manager.get_longitude())
         #parentCells = mapobjects.get_cellid(self.location_manager.get_latitude(), self.location_manager.get_longitude())
