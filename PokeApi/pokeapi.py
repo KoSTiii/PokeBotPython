@@ -107,8 +107,8 @@ class PokeApi(object):
     """
     def get_map_objects(self):
         # get cells id
-        #parentCells = mapobjects.get_neighbours_circular(self.location_manager.get_latitude(), self.location_manager.get_longitude())
-        parentCells = mapobjects.get_cellid(self.location_manager.get_latitude(), self.location_manager.get_longitude())
+        parentCells = mapobjects.get_neighbours_circular(self.location_manager.get_latitude(), self.location_manager.get_longitude())
+        #parentCells = mapobjects.get_cellid(self.location_manager.get_latitude(), self.location_manager.get_longitude())
         mapObjectResponse = self._map_object_request(parentCells)
 
         for map_cell in mapObjectResponse.map_cells:
