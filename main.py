@@ -14,11 +14,17 @@ from POGOProtos.Networking import Requests_pb2, Responses_pb2
 from POGOProtos.Networking.Requests import Messages_pb2
 from POGOProtos.Data import Gym_pb2
 
-
+# setup loggers
 logging.basicConfig(format='%(asctime)s:%(levelname)s: %(message)s', level=logging.DEBUG)
+logging.getLogger('requests').setLevel(logging.DEBUG)
+logging.getLogger('PokeApi').setLevel(logging.DEBUG)
+logging.getLogger('PokeApi.auth').setLevel(logging.DEBUG)
+logging.getLogger('PokeApi.RequestHandler').setLevel(logging.DEBUG)
+logging.getLogger('PokeBot').setLevel(logging.DEBUG)
+
 
 #auth = PTCLogin().login_user('bumbar1', 'bumbar1')
-auth = PTCLogin().login_token('TGT-968499-nbpYE9f5s3RqSq5zSgvkedPtiTFZlej5caJgxfTB6w5SJ2fIHi-sso.pokemon.com')
+auth = PTCLogin().login_token('TGT-1806278-6teJVeBwKKQDZESVKsAJxIOjXxBfWchNUWE1g9mmQcKdLGEgXg-sso.pokemon.com')
 logging.info(auth)
 
 #loc = LocationManager(46.2397495, 15.2677063, 0) # celje

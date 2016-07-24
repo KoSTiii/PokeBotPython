@@ -30,7 +30,7 @@ class PTCLogin(Login):
     @return auth object
     """
     def login_user(self, username, password):
-        logging.info('Started logging into ptc services with username=%s' % username)
+        self.logger.info('Started logging into ptc services with username=%s' % username)
 
         head = {'User-Agent': 'niantic'}
         r = self.auth.session.get(config.LOGIN_URL, headers=head)
@@ -65,9 +65,9 @@ class PTCLogin(Login):
         access_token = re.sub('.*access_token=', '', access_token)
 
         if not access_token:
-            logging.info('Login failed with ptc login')
+            self.logger.info('Login failed with ptc login')
             raise exceptions.LoginFailedException('Error getting access token')
 
-        logging.info('Login successed to ptc with username=' + username)
+        self.logger.info('Login successed to ptc with username=' + username)
         self.auth.access_token = access_token
         return self.auth

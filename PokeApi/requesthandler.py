@@ -19,6 +19,7 @@ class RequestHandler(object):
         if not isinstance(auth, Auth):
             raise exceptions.InvalidAuthenticationException('Parameter auth is not object from Auth class')
         
+        self.logger = logging.getLogger(__name__)
         self.auth = auth
         self.last_auth_ticket = None
         self.api_endpoint = self.API_URL
@@ -51,7 +52,7 @@ class RequestHandler(object):
     """
     def send_requests(self):
         if not self.hasRequests:
-            logging.error('trying to send request envelope without requests')
+            self.logger.error('trying to send request envelope without requests')
             raise exceptions.IllegalStateException('You are trying to send request envelope without requests')
 
         # delete all request and add new ones
@@ -62,34 +63,34 @@ class RequestHandler(object):
 
         # add location to request envelope
         if not self.location:
-            logging.error('location is not set')
+            self.logger.error('location is not set')
             raise exceptions.IllegalStateException('You need to set location')
         self.request_envelope.latitude = self.location.get_latitude() #f2i(self.location.get_latitude())
         self.request_envelope.longitude = self.location.get_longitude() #f2i(self.location.get_longitude())
         self.request_envelope.altitude = self.location.get_altitude() #f2i(self.location.get_altitude())
 
-        logging.debug('----- REQUEST -----\n%s', self.request_envelope)
+        self.logger.debug('----- REQUEST -----\n%s', self.request_envelope)
 
         try:
             # start sending
             protobuf = self.request_envelope.SerializeToString()
             response = self.auth.session.post(self.api_endpoint, data=protobuf, verify=False)
         except Exception as e:
-            logging.error('Error sending request: %s', e)
+            self.logger.error('Error sending request: %s', e)
             raise e
         try:
             # response envelope parsing
             response_envelope = ResponseEnvelope()
             response_envelope.ParseFromString(response.content)
         except Exception as e:
-            logging.error('Error parsing response envelope: %s', e)
+            self.logger.error('Error parsing response envelope: %s', e)
             raise e
 
-        logging.debug('----- RESPONSE -----\n%s', response_envelope)
+        self.logger.debug('----- RESPONSE -----\n%s', response_envelope)
 
         # we get auth ticket
         if response_envelope.HasField('auth_ticket'): #auth_ticket:
-            logging.info('changed auth ticket')
+            self.logger.info('changed auth ticket')
             self.last_auth_ticket = AuthTicket()
             self.last_auth_ticket.CopyFrom(response_envelope.auth_ticket)
 
@@ -98,27 +99,27 @@ class RequestHandler(object):
         """
         # not complete message
         if response_envelope.status_code is 100:
-            logging.error('Response retuned status code 100 (not complete message)')
+            self.logger.error('Response retuned status code 100 (not complete message)')
             raise Exception('Server returned status_code=100 (not complete message)')
         # if error occured when sending
         if response_envelope.status_code is 102:
-            logging.error('not logged in or expired token')
+            self.logger.error('not logged in or expired token')
             raise exceptions.NotLoggedInException('Not logged in exception')
         # 52 status code means that we hit the data cap. So we wait 2 seconds and try again
         if response_envelope.status_code is 52:
-            logging.debug('Hit data cap. waiting 5 secods and try again')
+            self.logger.debug('Hit data cap. waiting 5 secods and try again')
             time.sleep(5)
             return self.send_requests()
         # status_code 53 suposed to be api endpoint change. after 5 retries raise exception (pomeni spremeni server)
         if response_envelope.status_code is 53:
             self.api_endpoint = ('https://%s/rpc' % response_envelope.api_url)
-            logging.debug('changed api endpoint to: %s', self.api_endpoint)
+            self.logger.debug('changed api endpoint to: %s', self.api_endpoint)
             return self.send_requests()
             """
             # we get redirection to other api endpoint server
             if response_envelope.api_url is not None and response_envelope.api_url is not '':
                 self.api_endpoint = ('https://%s/rpc' % response_envelope.api_url)
-                logging.debug('changed api endpoint to: %s', self.api_endpoint)
+                self.logger.debug('changed api endpoint to: %s', self.api_endpoint)
             """
 
         # do something with response content
@@ -145,10 +146,10 @@ class RequestHandler(object):
     """
     def add_request(self, base_request):
         if not isinstance(base_request, ServerRequest):
-            logging.error('request is not instance of ServerRequest')
+            self.logger.error('request is not instance of ServerRequest')
             raise exceptions.IllegalStateException('Request is not instance of BaseRequest class')
 
-        logging.debug('Added request')
+        self.logger.debug('Added request')
         self.requests.append(base_request)
         self.hasRequests = True
 
@@ -156,7 +157,7 @@ class RequestHandler(object):
     """
     def set_location(self, location):
         if not isinstance(location, LocationManager):
-            logging.error('location is not instance of LocationManager')
+            self.logger.error('location is not instance of LocationManager')
             raise exceptions.IllegalStateException('Location is not type of LocationManager')
-        logging.debug('Location successfuly changed')
+        self.logger.debug('Location successfuly changed')
         self.location = location

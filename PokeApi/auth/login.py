@@ -43,6 +43,7 @@ class Login(ABC):
     """ Base constructor, initializes auth object with session
     """
     def __init__(self):
+        self.logger = logging.getLogger(__name__)
         self.auth = Auth()
         self.auth.provider = self.get_provider()
 
@@ -56,7 +57,7 @@ class Login(ABC):
     @return auth object
     """
     def login_token(self, token):
-        logging.info('Success login with token=%s...' % token)
+        self.logger.info('Success login with token=%s...' % token)
         self.auth.access_token = token
         return self.auth
 

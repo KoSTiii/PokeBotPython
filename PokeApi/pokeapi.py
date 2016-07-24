@@ -23,6 +23,7 @@ class PokeApi(object):
     """
     """
     def __init__(self, auth, location):
+        self.logger = logging.getLogger(__name__)
         self.auth = auth
         self.request_handler = RequestHandler(auth)
         self.location_manager = location
@@ -53,14 +54,14 @@ class PokeApi(object):
                     else:
                         setattr(reqMessage, key, value)
 
-                logging.debug("Arguments of '%s': \n\r%s", name, kwargs)
+                self.logger.debug("Arguments of '%s': \n\r%s", name, kwargs)
                 newReq.set_request_message(reqMessage)
             
             self.request_handler.add_request(newReq)
-            logging.info("Adding '%s' to RequestHandler request", name)
+            self.logger.info("Adding '%s' to RequestHandler request", name)
             return self
    
-        logging.debug('pokeapi __getattr__ with name: ' + func)
+        self.logger.debug('__getattr__ with name: ' + func)
         if func.upper() in Requests_pb2.RequestType.keys():
             return function
         else:
@@ -71,7 +72,17 @@ class PokeApi(object):
     def send_requests(self):
         return self.request_handler.send_requests()
 
-    
+    """
+    """
+    def execute_heartbeat(self):
+        self.get_player()
+        self.get_hatched_eggs()
+        self.get_inventory()
+        self.check_awarded_badges()
+        return self.send_requests()
+
+    """
+    """
     def get_profile(self):
         player = ServerRequest(Requests_pb2.GET_PLAYER)
         inv = ServerRequest(Requests_pb2.GET_INVENTORY)
@@ -147,7 +158,6 @@ class PokeApi(object):
         
         # return response
         mapObjectResponse = self.request_handler.send_requests()
-        print(mapObjectResponse)
         return mapObjectResponse
 
 
@@ -158,16 +168,11 @@ class PokeApi(object):
         parentCells = mapobjects.get_neighbours_circular(self.location_manager.get_latitude(), self.location_manager.get_longitude())
         #parentCells = mapobjects.get_cellid(self.location_manager.get_latitude(), self.location_manager.get_longitude())
         mapObjectResponse = self._map_object_request(parentCells)
+        return mapObjectResponse
 
-        for map_cell in mapObjectResponse.map_cells:
-            #print(map_cell)
-            if map_cell.nearby_pokemons:
-                print('le pokemon')
-            if map_cell.catchable_pokemons:
-                print('catchable pokemon')
-            if map_cell.wild_pokemons:
-                print('wild pokemon')
-            if map_cell.forts:
-                print('le gyms')
-        
-        return mapObjectResponse.map_cells
+    """ Set position to location manager
+    """
+    def set_position(self, latitude, longitude, altitude):
+        self.location_manager.latitude = latitude
+        self.location_manager.longitude = longitude
+        self.location_manager.altitude = altitude
