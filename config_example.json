@@ -1,0 +1,42 @@
+[
+    {
+        "active": false,
+        "provider": "ptc|google",
+        "username": "username",
+        "password": "password",
+        "location": "xx.yyyyyy,xx.yyyyyy",
+        "mode": "any|pokemon|pokestop",
+        "cache": true,
+        "max_steps": 50,
+        "steps": 10,
+        "ignore_pokemon": ["Pidgey", "Rattata"],
+        "release_pokemon": {
+            "any": {
+                "release_under_cp": 20,
+                "release_under_iv": 0.8,
+                "cp_iv_logic": "or"
+            }
+        },
+        "items_filter": ["100", "101", "201"]
+    },
+    {
+        "active": true,
+        "provider": "ptc|google",
+        "username": "username",
+        "password": "password",
+        "location": "xx.yyyyyy,xx.yyyyyy",
+        "mode": "any|pokemon|pokestop",
+        "cache": true,
+        "max_steps": 50,
+        "steps": 10,
+        "ignore_pokemon": ["Pidgey", "Rattata"],
+        "release_pokemon": {
+            "any": {
+                "release_under_cp": 20,
+                "release_under_iv": 0.8,
+                "cp_iv_logic": "or"
+            }
+        },
+        "items_filter": []
+    }
+]

@@ -3,11 +3,9 @@
 """ Configuration for authentification for pokemon go
 """
 AUTHINFO_TOKEN_UNKNOWN2 = 14
-#login
-SUPPORTED_PROVIDERS = ['ptc', 'google']
 #google config
 GOOGLE_LOGIN_ANDROID_ID = '9774d56d682e549c'
-GOOGLE_LOGIN_SERVICE= 'audience:server:client_id:848232511240-7so421jotr2609rmqakceuu1luuq0ptb.apps.googleusercontent.com'
+GOOGLE_LOGIN_SERVICE = 'audience:server:client_id:848232511240-7so421jotr2609rmqakceuu1luuq0ptb.apps.googleusercontent.com'
 GOOGLE_LOGIN_APP = 'com.nianticlabs.pokemongo'
 GOOGLE_LOGIN_CLIENT_SIG = '321187995bc7cdc2b5fc91b11a96e2baa8602c62'
 #ptc config

@@ -6,5 +6,5 @@ class Stepper(object):
 
     """ Initialize stepper class
     """
-    def __init__(self, config_):
-        self.config = config_
+    def __init__(self, config):
+        self.config = config
