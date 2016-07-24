@@ -139,3 +139,6 @@ fabric.properties
 
 ## proto compiled
 out/
+
+config.json
+.vscode/
