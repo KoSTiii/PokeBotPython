@@ -1,6 +1,7 @@
 import json
 
 import POGOProtos.Enums_pb2 as Enums_pb2
+import POGOProtos.Inventory_pb2 as Inventory_pb2
 from PokeApi.locations import LocationManager
 
 # BotConfig settings
@@ -12,6 +13,11 @@ SUPPORTED_CP_IV_LOGIC = ['or', 'and']
 
 def check_pokemon_name(pokemon_name):
     if pokemon_name.upper() in Enums_pb2.PokemonType.keys():
+        return True
+    return False
+
+def check_item_id(item_id):
+    if item_id in Inventory_pb2.ItemId.values():
         return True
     return False
 
@@ -47,7 +53,6 @@ class BotConfig(object):
                          pokemon_release_configs,
                          cfg['items_filter'])
             configs.append(config)
-
         return configs
 
     """ Initialize bot config
@@ -89,9 +94,8 @@ class BotConfig(object):
 
     def _check_items_filter(self, items_filter):
         for item in items_filter:
-            pass
-            #if item not in SUPPORTED_ITEMS:
-            #    raise ValueError('Item with id {} is not valid'.format(item))
+            if not check_item_id(item):
+                raise ValueError('Item with id {} is not valid'.format(item))
         return items_filter
     
     """ Return location in LocationManager class
