@@ -12,9 +12,8 @@ from POGOProtos.Networking.Envelopes_pb2 import AuthTicket, ResponseEnvelope, Re
 from POGOProtos.Networking import Requests_pb2
 from POGOProtos.Networking.Requests import Messages_pb2
 #data imports
-from PokeApi.data.player import *
+from PokeApi.data.player import Player
 
-import s2sphere
 from google.protobuf.internal.containers import RepeatedScalarFieldContainer
 
 

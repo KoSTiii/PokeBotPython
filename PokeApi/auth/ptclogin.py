@@ -6,7 +6,7 @@ import requests
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
 from PokeApi.auth.login import Login, Auth
-from PokeApi import exceptions, config
+from PokeApi import exceptions, apiconfig
 
 # disable insecure warning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
@@ -33,7 +33,7 @@ class PTCLogin(Login):
         self.logger.info('Started logging into ptc services with username=%s' % username)
 
         head = {'User-Agent': 'niantic'}
-        r = self.auth.session.get(config.LOGIN_URL, headers=head)
+        r = self.auth.session.get(apiconfig.LOGIN_URL, headers=head)
         if r.status_code is not requests.codes.ok:
             raise exceptions.LoginFailedException('Login Server seems to be offline')
 
@@ -45,7 +45,7 @@ class PTCLogin(Login):
             'username': username,
             'password': password,
         }
-        r1 = self.auth.session.post(config.LOGIN_URL, data=data, headers=head)
+        r1 = self.auth.session.post(apiconfig.LOGIN_URL, data=data, headers=head)
 
         ticket = None
         try:
@@ -56,11 +56,11 @@ class PTCLogin(Login):
         data1 = {
             'client_id': 'mobile-app_pokemon-go',
             'redirect_uri': 'https://www.nianticlabs.com/pokemongo/error',
-            'client_secret': config.PTC_CLIENT_SECRET,
+            'client_secret': apiconfig.PTC_CLIENT_SECRET,
             'grant_type': 'refresh_token',
             'code': ticket,
         }
-        r2 = self.auth.session.post(config.LOGIN_OAUTH, data=data1)
+        r2 = self.auth.session.post(apiconfig.LOGIN_OAUTH, data=data1)
         access_token = re.sub('&expires.*', '', r2.content.decode('utf-8'))
         access_token = re.sub('.*access_token=', '', access_token)
 

@@ -1,5 +1,6 @@
 import json
 
+import POGOProtos.Enums_pb2 as Enums_pb2
 from PokeApi.locations import LocationManager
 
 # BotConfig settings
@@ -9,18 +10,10 @@ SUPPORTED_MODES = ['all', 'pokemon', 'pokestop']
 # ReleasePokemonConfig settings
 SUPPORTED_CP_IV_LOGIC = ['or', 'and']
 
-# Pokemon and Items data
-SUPPORTED_POKEMONS = []
-SUPPORTED_ITEMS = []
-
-def init_pokemon_and_item_data():
-    if not SUPPORTED_POKEMONS: 
-        global SUPPORTED_POKEMONS
-        SUPPORTED_POKEMONS = json.load(open('data/pokemon.json'))
-    if not SUPPORTED_ITEMS:
-        global SUPPORTED_ITEMS
-        SUPPORTED_ITEMS = json.load(open('data/items.json'))
-init_pokemon_and_item_data()
+def check_pokemon_name(pokemon_name):
+    if pokemon_name.upper() in Enums_pb2.PokemonType.keys():
+        return True
+    return False
 
 
 """ BotConfig is configuration for bot
@@ -40,7 +33,7 @@ class BotConfig(object):
                 continue
             pokemon_release_configs = []
             for rel_pok in cfg['release_pokemon']:
-                pokemon_release_configs.append(PokemonReleaseConfig.from_json(rel_pok))
+                pokemon_release_configs.append(PokemonReleaseConfig.from_json(rel_pok, cfg['release_pokemon']))
 
             config = cls(cfg['provider'],
                          cfg['username'],
@@ -48,8 +41,8 @@ class BotConfig(object):
                          cfg['location'],
                          cfg['mode'],
                          cfg['cache'],
-                         cfg['maxstep'],
-                         cfg['step'],
+                         cfg['maxsteps'],
+                         cfg['steps'],
                          cfg['ignore_pokemon'],
                          pokemon_release_configs,
                          cfg['items_filter'])
@@ -59,15 +52,15 @@ class BotConfig(object):
 
     """ Initialize bot config
     """
-    def __init__(self, provider, username, password, location, mode, cache, maxstep, step, ignore_pokemon, release_pokemon, items_filter):
+    def __init__(self, provider, username, password, location, mode, cache, maxsteps, steps, ignore_pokemon, release_pokemon, items_filter):
         self.provider = self._check_providers(provider)
         self.username = username
         self.password = password
         self.location = location
         self.mode = self._check_mode(mode)
         self.cache = cache
-        self.maxsteps = maxstep
-        self.step = step
+        self.maxsteps = maxsteps
+        self.steps = steps
         self.ignore_pokemon = self._check_ignore_pokemon(ignore_pokemon)
         self.release_pokemon = self._check_release_pokemon(release_pokemon)
         self.items_filter = self._check_items_filter(items_filter)
@@ -84,7 +77,7 @@ class BotConfig(object):
 
     def _check_ignore_pokemon(self, ignore_pokemon):
         for pokemon in ignore_pokemon:
-            if pokemon not in SUPPORTED_POKEMONS:
+            if not check_pokemon_name(pokemon):
                 raise ValueError('Unknown pokemon {}'.format(pokemon))
         return ignore_pokemon
 
@@ -96,8 +89,9 @@ class BotConfig(object):
 
     def _check_items_filter(self, items_filter):
         for item in items_filter:
-            if item not in SUPPORTED_ITEMS:
-                raise ValueError('Item with id {} is not valid'.format(item))
+            pass
+            #if item not in SUPPORTED_ITEMS:
+            #    raise ValueError('Item with id {} is not valid'.format(item))
         return items_filter
     
     """ Return location in LocationManager class
@@ -114,8 +108,8 @@ class PokemonReleaseConfig(object):
     """
     """
     @classmethod
-    def from_json(cls, json_):
-        return cls(json_, json_['release_under_cp'], json_['release_under_iv'], json_['cp_iv_logic'])
+    def from_json(cls, name, json_):
+        return cls(name, json_[name]['release_under_cp'], json_[name]['release_under_iv'], json_[name]['cp_iv_logic'])
 
     def __init__(self, name, release_under_cp, release_under_iv, cp_iv_logic):
         self.name = self._check_name(name)
@@ -124,7 +118,7 @@ class PokemonReleaseConfig(object):
         self.cp_iv_logic = self._check_cp_iv_logic(cp_iv_logic)
 
     def _check_name(self, name):
-        if name is not 'any' and name not in SUPPORTED_POKEMONS:
+        if (not check_pokemon_name(name)) and (name is 'any'):
             raise ValueError('Unknown pokemon name or not "any". get: {}'.format(name))
         return name
 

@@ -7,7 +7,7 @@ from requests.packages.urllib3.exceptions import InsecureRequestWarning
 from gpsoauth import perform_master_login, perform_oauth
 
 from PokeApi.auth.login import Login, Auth
-from PokeApi import exceptions, config
+from PokeApi import exceptions, apiconfig
 
 # disable insecure warning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
@@ -33,8 +33,8 @@ class GoogleLogin(Login):
     def login_user(self, username, password):
         self.logger.info('Started logging into google services with username=%s' % username)
 
-        login = perform_master_login(username, password, config.GOOGLE_LOGIN_ANDROID_ID)
-        login = perform_oauth(username, login.get('Token', ''), config.GOOGLE_LOGIN_ANDROID_ID, config.GOOGLE_LOGIN_SERVICE, config.GOOGLE_LOGIN_APP, config.GOOGLE_LOGIN_CLIENT_SIG)
+        login = perform_master_login(username, password, apiconfig.GOOGLE_LOGIN_ANDROID_ID)
+        login = perform_oauth(username, login.get('Token', ''), apiconfig.GOOGLE_LOGIN_ANDROID_ID, apiconfig.GOOGLE_LOGIN_SERVICE, apiconfig.GOOGLE_LOGIN_APP, apiconfig.GOOGLE_LOGIN_CLIENT_SIG)
             
         auth_token = login.get('Auth')
         

@@ -1,7 +1,7 @@
 import time
 import logging
 
-from PokeApi import exceptions, config
+from PokeApi import exceptions, apiconfig
 from PokeApi.serverrequest import ServerRequest
 from PokeApi.auth import Auth
 from PokeApi.locations import LocationManager, f2i
@@ -35,14 +35,14 @@ class RequestHandler(object):
     """
     def reset_builder(self):
         self.request_envelope = RequestEnvelope()
-        self.request_envelope.status_code = config.REQUEST_ENVELOPE_STATUS_CODE
-        self.request_envelope.request_id = config.REQUEST_ENVELOPE_ID
+        self.request_envelope.status_code = apiconfig.REQUEST_ENVELOPE_STATUS_CODE
+        self.request_envelope.request_id = apiconfig.REQUEST_ENVELOPE_ID
 
         if self.last_auth_ticket is not None and self.last_auth_ticket.expire_timestamp_ms > int(round(time.time() * 1000)):
             self.request_envelope.auth_ticket.CopyFrom(self.last_auth_ticket)
         else:
             self.request_envelope.auth_info.CopyFrom(self.auth.get_auth_info_object())
-        self.request_envelope.unknown12 = config.REQUEST_ENVELOPE_UNKNOWN12
+        self.request_envelope.unknown12 = apiconfig.REQUEST_ENVELOPE_UNKNOWN12
 
         self.requests = []
         self.hasRequests = False

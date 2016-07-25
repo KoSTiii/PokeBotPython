@@ -2,7 +2,7 @@ import logging
 
 from PokeApi.pokeapi import PokeApi
 from PokeApi.auth import GoogleLogin, PTCLogin
-from PokeBot.config import BotConfig, SUPPORTED_PROVIDERS
+from PokeBot.botconfig import BotConfig, SUPPORTED_PROVIDERS
 
 
 """ Main class of pokebot 
@@ -19,19 +19,25 @@ class PokeBot(object):
         self.config = config
         
         self.auth = self._authorize()
+        self.logger.info(self.auth)
         self.pokeapi = PokeApi(self.auth, self.config.get_location_manager())
 
     """ Authorize account with sprecified info from json file
     """
     def _authorize(self):
-        if self.config.provider is 'ptc':
+        if self.config.provider == 'ptc':
             return PTCLogin().login_user(self.config.username, self.config.password)
-        elif self.config.provider is 'google':
+        elif self.config.provider == 'google':
             return GoogleLogin().login_user(self.config.username, self.config.password)
         else:
             self.logger.error('wrong provider specified')
             raise ValueError('{0}: provider is not supported. Supported providers: {1}'
                              .format(self.config.provider, SUPPORTED_PROVIDERS))
+
+    """ Initialize bot
+    """
+    def initialize(self):
+        pass
 
     """ Update bot
     """
