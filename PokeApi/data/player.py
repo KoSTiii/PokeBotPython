@@ -1,63 +1,42 @@
-from enum import Enum
+import datetime
+
+import PokeApi.data.basedata as basedata
+from POGOProtos.Data_pb2 import PlayerData
 
 
-class PlayerProfile(object):
+class Player(basedata.BaseData):
 
-    def __init__(self):
-        self.creation_time = None
-        self.username = None
-        self.team = None
-        self.pokemon_storage = None
-        self.item_storage = None
-        self.badge = None
-        self.avatar = None
-        self.daily_bonus = None
-        self.contact_settings = None
-        self.currencies = None
+    def __init__(self, api, player_data):
+        basedata.BaseData.__init__(api)
+        if not isinstance(player_data, PlayerData):
+            raise ValueError('player_data is not type of PlayerData')
+        self.player = player_data
 
     def __str__(self):
-        return str(self.username)
+        return str(self.player)
 
+    def update_player(self):
+        # TODO implement update player
+        raise NotImplementedError
 
-class Team(Enum):
-    TEAM_NONE = 0
-    TEAM_MYSTIC = 1
-    TEAM_INSTINCT = 2
-    TEAM_VALOR = 3
+    def get_creation_time(self):
+        return datetime.datetime.fromtimestamp(
+            self.player.creation_timestamp_ms / 1000.0)
 
+    def get_username(self):
+        return self.player.username
 
-class PlayerAvatar(object):
+    def get_team(self):
+        return self.player.team
 
-    def __init__(self):
-        self.gender = None
-        self.skin = None
-        self.hair = None
-        self.shirt = None
-        self.pants = None
-        self.hat = None
-        self.shoes = None
-        self.eyes = None
-        self.backpack = None
+    def get_max_pokemon_storage(self):
+        return self.player.max_pokemon_storage
 
-    def __str__(self):
-        return str(self.skin)
+    def get_max_item_storage(self):
+        return self.player.max_item_storage
 
+    def get_currencies(self):
+        return self.player.currencies
 
-class DailyBonus(object):
-
-    def __init__(self):
-        self.next_collection_timestamp = None
-        self.next_defender_bonus_collect_timestamp = None
-    
-    def __str__(self):
-        return str(self.next_collection_timestamp)
-
-
-class ContactSettings(object):
-
-    def __init__(self):
-        self.send_marketing_emails = None
-        self.send_push_notifications = None
-    
-    def __str__(self):
-        return str(self.send_marketing_emails)
+    def get_contact_settings(self):
+        return self.player.contact_settings
