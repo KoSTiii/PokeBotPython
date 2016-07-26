@@ -40,7 +40,6 @@ class DataManager(object):
         self.pokebot = pokebot
         self.loc = pokebot.pokeapi.location_manager
         self.unique_counter = 0
-
         self.dict = self.default_dict_values()
 
     def __str__(self):
@@ -82,9 +81,11 @@ class DataManager(object):
                 list_fort[0].distance = dist
             # if we dont have fort add them
             else:
+                """
                 dist = Coordinates.distance_haversine_km(*self.loc.get_lat_lng(), fort.latitude, fort.longitude)
                 self.get_list_from_dict(DataType.FORT_POKESTOP).append(
                     DictData(self.get_counter(), DataType.FORT_POKESTOP, fort, fort.latitude, fort.longitude, dist))
+                """
 
         # fort type is gym
         elif fort.type == Gym_pb2.GYM:
