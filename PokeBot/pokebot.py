@@ -9,13 +9,13 @@ from PokeBot.algorithms import dijkstra_algorithm
 from PokeBot.botconfig import BotConfig, SUPPORTED_PROVIDERS
 
 
-""" Main class of pokebot 
-"""
 class PokeBot(object):
-
-    """ Initialize the Master PokeBot
+    """ Main class of pokebot 
     """
+
     def __init__(self, config):
+        """ Initialize the Master PokeBot
+        """
         if not isinstance(config, BotConfig):
             raise TypeError('arg config is not type of class Config')
         
@@ -30,9 +30,9 @@ class PokeBot(object):
         self.data_manager = None
         self.initialize()
 
-    """ Authorize account with sprecified info from json file
-    """
     def _authorize(self):
+        """ Authorize account with sprecified info from json file
+        """
         if self.config.provider == 'ptc':
             return PTCLogin().login_user(self.config.username, self.config.password)
         elif self.config.provider == 'google':
@@ -42,9 +42,9 @@ class PokeBot(object):
             raise ValueError('{0}: provider is not supported. Supported providers: {1}'
                              .format(self.config.provider, SUPPORTED_PROVIDERS))
 
-    """ Initialize bot
-    """
     def initialize(self):
+        """ Initialize bot
+        """
         # send basic requests
         self.pokeapi.get_player()
         self.pokeapi.get_inventory()
@@ -64,9 +64,9 @@ class PokeBot(object):
     def initialize_new_stepper(self, stepper):
         self.stepper = stepper
 
-    """ Update loop of the bot
-    """
     def update(self, delta_time):
+        """ Update loop of the bot
+        """
         # send hearthbeat
         hearthbeat_response = self.pokeapi.execute_heartbeat()
         # update player, inventory, hatched eggs, check_awarded_badges

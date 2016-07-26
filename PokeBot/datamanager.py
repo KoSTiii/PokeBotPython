@@ -6,9 +6,9 @@ from PokeApi.locations import Coordinates
 from POGOProtos.Data import Gym_pb2
 
 
-""" Enum of all posible types that we monitoring
-"""
 class DataType(Enum):
+    """ Enum of all posible types that we monitoring
+    """
     FORT_GYM = 0
     FORT_POKESTOP = 1
     WILD_POKEMON = 2
@@ -16,9 +16,9 @@ class DataType(Enum):
     NEARBY_POKEMON = 4
 
 
-"""
-"""
 class DictData(object):
+    """
+    """
 
     def __init__(self, unique_id, data_type, data, lat, lon, distance):
         self.unique_id = unique_id
@@ -32,9 +32,9 @@ class DictData(object):
         return str('id:{};data:{}'.format(self.unique_id, str(self.data)))
 
 
-"""
-"""
 class DataManager(object):
+    """
+    """
 
     def __init__(self, pokebot):
         self.pokebot = pokebot
@@ -65,9 +65,9 @@ class DataManager(object):
     def reset_counter(self):
         self.unique_counter = 0
 
-    """ update fort with new value. if we find new fort add to list
-    """
     def update_forts(self, fort):
+        """ update fort with new value. if we find new fort add to list
+        """
         # fort type is pokestop
         if fort.type == Gym_pb2.CHECKPOINT:
             pokestop_list = self.get_list_from_dict(DataType.FORT_POKESTOP)
@@ -97,15 +97,15 @@ class DataManager(object):
                 DictData(self.get_counter(), DataType.FORT_GYM, fort, fort.latitude, fort.longitude, dist))
             """
 
-    """ Update pokemon in dict
-    """
     def update_pokemons(self, pokemon):
+        """ Update pokemon in dict
+        """
         pass
         
 
-    """ Start updating dictionary with new values or add existing values
-    """
     def update_dict(self, map_cells):
+        """ Start updating dictionary with new values or add existing values
+        """
         #self.dict = self.default_dict_values()
         for cell in map_cells:
             # update forts
@@ -131,9 +131,9 @@ class DataManager(object):
                 self.get_list_from_dict(DataType.NEARBY_POKEMON).append(
                     DictData(self.get_counter(), DataType.NEARBY_POKEMON, npokemon, npokemon_pos.lat().degrees, npokemon_pos.lng().degrees, dist))
 
-    """ available modes all|pokemon|pokestop
-    """
     def items(self, mode):
+        """ available modes all|pokemon|pokestop
+        """
         result = []
         if mode in ['all', 'pokestop']:
             result += self.get_list_from_dict(DataType.FORT_POKESTOP)

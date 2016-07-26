@@ -22,14 +22,14 @@ def check_item_id(item_id):
     return False
 
 
-""" BotConfig is configuration for bot
-"""
 class BotConfig(object):
-
-    """ Initialize BotConfigs from json file
+    """ BotConfig is configuration for bot
     """
+
     @classmethod
     def from_file(cls, json_file):
+        """ Initialize BotConfigs from json file
+        """
         configs = []
         fjson = json.load(open(json_file))
 
@@ -52,12 +52,12 @@ class BotConfig(object):
                          cfg['ignore_pokemon'],
                          pokemon_release_configs,
                          cfg['items_filter'])
-            configs.append(config)
         return configs
+            configs.append(config)  
 
-    """ Initialize bot config
-    """
     def __init__(self, provider, username, password, location, mode, cache, maxsteps, steps, ignore_pokemon, release_pokemon, items_filter):
+        """ Initialize bot config
+        """
         self.provider = self._check_providers(provider)
         self.username = username
         self.password = password
@@ -98,21 +98,21 @@ class BotConfig(object):
                 raise ValueError('Item with id {} is not valid'.format(item))
         return items_filter
     
-    """ Return location in LocationManager class
-    """
     def get_location_manager(self):
+        """ Return location in LocationManager class
+        """
         coords = self.location.split(',')
         return LocationManager(float(coords[0]), float(coords[1]))
 
 
-""" configuration for pokemon release
-"""
 class PokemonReleaseConfig(object):
+    """ configuration for pokemon release
+    """
 
-    """
-    """
     @classmethod
     def from_json(cls, name, json_):
+        """
+        """
         return cls(name, json_[name]['release_under_cp'], json_[name]['release_under_iv'], json_[name]['cp_iv_logic'])
 
     def __init__(self, name, release_under_cp, release_under_iv, cp_iv_logic):

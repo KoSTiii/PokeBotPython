@@ -32,9 +32,9 @@ def get_cellid(lat, long):
     return sorted(walk)
 
 
-""" dobi krog okoli centra tocke
-"""
 def get_neighbours(lat, long):
+    """ dobi krog okoli centra tocke
+    """
     # ns = north east, ew = east west (ratio between 1 feet and degree) its different on diferent places on earth (sphere)!!
     ns = 0.0025
     ew = 0.0025
@@ -47,9 +47,9 @@ def get_neighbours(lat, long):
     return sorted(walk)
 
 
-""" Get neigbours in circular pattern
-"""
 def get_neighbours_circular(lat, lng):
+    """ Get neigbours in circular pattern
+    """
     origin = CellId.from_lat_lng(LatLng.from_degrees(lat, lng)).parent(S2_CELL_LEVEL)
     neighbors = {origin.id()}
 

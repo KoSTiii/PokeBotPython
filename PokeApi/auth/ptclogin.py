@@ -12,24 +12,24 @@ from PokeApi import exceptions, apiconfig
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 
-""" PTCLogin class for login to pokemon server
-"""
 class PTCLogin(Login):
-
-    """ Constuctor. initializes base class
+    """ PTCLogin class for login to pokemon server
     """
+
     def __init__(self):
+        """ Constuctor. initializes base class
+        """
         Login.__init__(self)
     
-    """ @retrun provider string for auth object
-    """
     def get_provider(self):
+        """ @retrun provider string for auth object
+        """
         return 'ptc'
 
-    """ Login into server with username and password
-    @return auth object
-    """
     def login_user(self, username, password):
+        """ Login into server with username and password
+        @return auth object
+        """
         self.logger.info('Started logging into ptc services with username=%s' % username)
 
         head = {'User-Agent': 'niantic'}

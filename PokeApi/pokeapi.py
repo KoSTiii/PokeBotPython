@@ -19,9 +19,9 @@ from google.protobuf.internal.containers import RepeatedScalarFieldContainer
 
 class PokeApi(object):
 
-    """
-    """
     def __init__(self, auth, location):
+        """
+        """
         self.logger = logging.getLogger(__name__)
         self.auth = auth
         self.request_handler = RequestHandler(auth)
@@ -29,9 +29,9 @@ class PokeApi(object):
 
         self.request_handler.set_location(self.location_manager)
 
-    """ Tole ful dober zgleda. The magic function
-    """
     def __getattr__(self, func):
+        """ Tole ful dober zgleda. The magic function
+        """
         def function(**kwargs):
             name = func.upper()
             requestTypeValue = Requests_pb2.RequestType.Value(name)
@@ -66,14 +66,14 @@ class PokeApi(object):
         else:
             raise AttributeError
 
-    """ send requests
-    """
     def send_requests(self):
+        """ send requests
+        """
         return self.request_handler.send_requests()
 
-    """ @retruns [player_data, hatched_egg, inventory_data, check_awarded_badges, get_map_objects]
-    """
     def execute_heartbeat(self):
+        """ @retruns [player_data, hatched_egg, inventory_data, check_awarded_badges, get_map_objects]
+        """
         self.get_player()
         self.get_hatched_eggs()
         self.get_inventory()
@@ -81,9 +81,9 @@ class PokeApi(object):
         self.add_get_map_objects_request()
         return self.send_requests()
 
-    """
-    """
     def get_profile(self):
+        """
+        """
         player = ServerRequest(Requests_pb2.GET_PLAYER)
         inv = ServerRequest(Requests_pb2.GET_INVENTORY)
         eggs = ServerRequest(Requests_pb2.GET_HATCHED_EGGS)
@@ -102,10 +102,10 @@ class PokeApi(object):
         return ret #[player.get_structured_data(), inv.get_structured_data(), eggs.get_structured_data(), sett.get_structured_data(), badges.get_structured_data()]
 
 
-    """ Map object request to the server
-    @return object of GetMapObjectResponse
-    """
     def _map_object_request(self, cellids):
+        """ Map object request to the server
+        @return object of GetMapObjectResponse
+        """
         # create mesasge
         mapObjectMessage = Messages_pb2.GetMapObjectsMessage()
         mapObjectMessage.cell_id.extend(cellids)
@@ -122,9 +122,9 @@ class PokeApi(object):
         return mapObjectResponse
 
 
-    """ get all map objects from server
-    """
     def get_all_map_objects(self):
+        """ get all map objects from server
+        """
         # get cells id
         parentCells = mapobjects.get_neighbours_circular(self.location_manager.get_latitude(), self.location_manager.get_longitude())
         #parentCells = mapobjects.get_cellid(self.location_manager.get_latitude(), self.location_manager.get_longitude())
@@ -138,9 +138,9 @@ class PokeApi(object):
                              latitude=self.location_manager.get_latitude(),
                              longitude=self.location_manager.get_longitude())
 
-    """ Set position to location manager
-    """
     def set_position(self, latitude, longitude, altitude):
+        """ Set position to location manager
+        """
         self.location_manager.latitude = latitude
         self.location_manager.longitude = longitude
         self.location_manager.altitude = altitude

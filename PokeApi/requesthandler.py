@@ -7,15 +7,15 @@ from PokeApi.auth import Auth
 from PokeApi.locations import LocationManager, f2i
 from POGOProtos.Networking.Envelopes_pb2 import AuthTicket, ResponseEnvelope, RequestEnvelope, Unknown6
 
-""" Main request handler class for handling all messages to server
-"""
 class RequestHandler(object):
+    """ Main request handler class for handling all messages to server
+    """
 
     API_URL = 'https://pgorelease.nianticlabs.com/plfe/rpc'
 
-    """ Initialize request handler
-    """
     def __init__(self, auth):
+        """ Initialize request handler
+        """
         if not isinstance(auth, Auth):
             raise exceptions.InvalidAuthenticationException('Parameter auth is not object from Auth class')
         
@@ -31,9 +31,9 @@ class RequestHandler(object):
 
         self.reset_builder()
 
-    """ reset the builder and ready for new set of requests
-    """
     def reset_builder(self):
+        """ reset the builder and ready for new set of requests
+        """
         self.request_envelope = RequestEnvelope()
         self.request_envelope.status_code = apiconfig.REQUEST_ENVELOPE_STATUS_CODE
         self.request_envelope.request_id = apiconfig.REQUEST_ENVELOPE_ID
@@ -47,10 +47,10 @@ class RequestHandler(object):
         self.requests = []
         self.hasRequests = False
 
-    """ send the requests to server
-    @return response request
-    """
     def send_requests(self):
+        """ send the requests to server
+        @return response request
+        """
         if not self.hasRequests:
             self.logger.error('trying to send request envelope without requests')
             raise exceptions.IllegalStateException('You are trying to send request envelope without requests')
@@ -141,10 +141,10 @@ class RequestHandler(object):
         self.reset_builder()
         return output
 
-    """ add new request
-    @param base_request is class BaseRequest
-    """
     def add_request(self, base_request):
+        """ add new request
+        @param base_request is class BaseRequest
+        """
         if not isinstance(base_request, ServerRequest):
             self.logger.error('request is not instance of ServerRequest')
             raise exceptions.IllegalStateException('Request is not instance of BaseRequest class')
@@ -153,9 +153,9 @@ class RequestHandler(object):
         self.requests.append(base_request)
         self.hasRequests = True
 
-    """ set the current location
-    """
     def set_location(self, location):
+        """ set the current location
+        """
         if not isinstance(location, LocationManager):
             self.logger.error('location is not instance of LocationManager')
             raise exceptions.IllegalStateException('Location is not type of LocationManager')

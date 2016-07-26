@@ -13,24 +13,24 @@ from PokeApi import exceptions, apiconfig
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 
-""" Google Login class for login to pokemon server with google account
-"""
 class GoogleLogin(Login):
-
-    """ Constuctor. initializes base class
+    """ Google Login class for login to pokemon server with google account
     """
+
     def __init__(self):
+        """ Constuctor. initializes base class
+        """
         Login.__init__(self)
 
-    """ @retrun provider string for auth object
-    """
     def get_provider(self):
+        """ @retrun provider string for auth object
+        """
         return 'google'
 
-    """ Login into server with username and password
-    @return auth object
-    """
     def login_user(self, username, password):
+        """ Login into server with username and password
+        @return auth object
+        """
         self.logger.info('Started logging into google services with username=%s' % username)
 
         login = perform_master_login(username, password, apiconfig.GOOGLE_LOGIN_ANDROID_ID)

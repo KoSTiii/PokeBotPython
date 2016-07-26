@@ -12,30 +12,30 @@ def h2f(hex_):
     return struct.unpack('<d', struct.pack('<Q', int(hex_,16)))[0]
 
 
-""" Location Manager class for managing which coordinates will be used
-"""
 class LocationManager(object):
-
-    """ constructor to set location
+    """ Location Manager class for managing which coordinates will be used
     """
+
     def __init__(self, latitude=0.0, longitude=0.0, altitude=0.0):
+        """ constructor to set location
+        """
         self.latitude = latitude
         self.longitude = longitude
         self.altitude = altitude
 
-    """ @ return latitude as integer
-    """
     def get_latitude(self):
+        """ @ return latitude as integer
+        """
         return self.latitude
 
-    """ @return longitude as integer
-    """
     def get_longitude(self):
+        """ @return longitude as integer
+        """
         return self.longitude
 
-    """ @return altitude 
-    """  
     def get_altitude(self):
+        """ @return altitude 
+        """  
         return self.altitude
 
     def get_lat_lng(self):
