@@ -38,6 +38,9 @@ class LocationManager(object):
     def get_altitude(self):
         return self.altitude
 
+    def get_lat_lng(self):
+        return (self.latitude, self.longitude)
+
     def set_location(self, latitude, longitude, altitude):
         self.latitude = latitude
         self.longitude = longitude
@@ -95,3 +98,23 @@ class Coordinates(object):
         lon = (lon1 + dlon + pi) % (2 * pi) - pi
 
         return (Coordinates.rad2deg(lat), Coordinates.rad2deg(lon))
+
+    @staticmethod
+    def angle_between_coords(lat1, lng1, lat2, lng2):
+        # convert arguments to radians
+        lat1 = Coordinates.deg2rad(lat1)
+        lng1 = Coordinates.deg2rad(lng1)
+        lat2 = Coordinates.deg2rad(lat2)
+        lng2 = Coordinates.deg2rad(lng2)
+
+        dLon = (lng2 - lng1)
+
+        y = sin(dLon) * cos(lat2)
+        x = cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(dLon)
+
+        brng = atan2(y, x)
+        brng = Coordinates.rad2deg(brng)
+        brng = (brng + 360) % 360
+        #brng = 360 - brng
+
+        return round(brng);
