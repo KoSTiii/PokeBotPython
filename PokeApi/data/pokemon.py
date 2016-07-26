@@ -1,13 +1,13 @@
-import PokeApi.data.basedata as basedata
+from PokeApi.data import basedata
 import POGOProtos.Enums_pb2 as Enums_pb2
 from POGOProtos.Data_pb2 import PokemonData
 from POGOProtos.Networking.Responses_pb2 import ReleasePokemonResponse
 
 
-class Pokemon(basedata.BaseData):
+class DataPokemon(basedata.BaseData):
     
     def __init__(self, api, pokemon_data):
-        basedata.BaseData.__init__(api)
+        basedata.BaseData.__init__(self, api)
         if not isinstance(pokemon_data, PokemonData):
             raise ValueError('pokemon_data is not type of PokemonData')
         self.pokemon = pokemon_data
@@ -42,3 +42,13 @@ class Pokemon(basedata.BaseData):
         self.logger.info('Succesfuly transfered pokemon {}. Was awarded {} candy'
                          .format(self.get_pokemon_name(), response.candy_awarded))
         return response
+
+
+""" Class for MapPokemon
+"""
+class MapPokemon(basedata.BaseData):
+    pass
+
+
+class WildPokemon(basedata.BaseData):
+    pass

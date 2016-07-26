@@ -1,13 +1,13 @@
 import datetime
 
-import PokeApi.data.basedata as basedata
+from PokeApi.data import basedata
 from POGOProtos.Data_pb2 import PlayerData
 
 
-class Player(basedata.BaseData):
+class DataPlayer(basedata.BaseData):
 
     def __init__(self, api, player_data):
-        basedata.BaseData.__init__(api)
+        basedata.BaseData.__init__(self, api)
         if not isinstance(player_data, PlayerData):
             raise ValueError('player_data is not type of PlayerData')
         self.player = player_data
@@ -15,9 +15,13 @@ class Player(basedata.BaseData):
     def __str__(self):
         return str(self.player)
 
-    def update_player(self):
-        # TODO implement update player
-        raise NotImplementedError
+    def update(self, plyr=None):
+        if plyr:
+            self.player = plyr
+        else:
+            self.api.get_player()
+            resp = self.api.send_requests()
+            self.player = resp.player_data
 
     def get_creation_time(self):
         return datetime.datetime.fromtimestamp(
