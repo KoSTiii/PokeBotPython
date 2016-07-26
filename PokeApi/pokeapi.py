@@ -12,7 +12,7 @@ from POGOProtos.Networking.Envelopes_pb2 import AuthTicket, ResponseEnvelope, Re
 from POGOProtos.Networking import Requests_pb2
 from POGOProtos.Networking.Requests import Messages_pb2
 #data imports
-from PokeApi.data.player import Player
+from PokeApi.data import DataPlayer
 
 from google.protobuf.internal.containers import RepeatedScalarFieldContainer
 
@@ -57,7 +57,7 @@ class PokeApi(object):
                 newReq.set_request_message(reqMessage)
             
             self.request_handler.add_request(newReq)
-            self.logger.info("Adding '%s' to RequestHandler request", name)
+            self.logger.debug("Adding '%s' to RequestHandler request", name)
             return self
    
         self.logger.debug('__getattr__ with name: ' + func)
@@ -71,13 +71,14 @@ class PokeApi(object):
     def send_requests(self):
         return self.request_handler.send_requests()
 
-    """
+    """ @retruns [player_data, hatched_egg, inventory_data, check_awarded_badges, get_map_objects]
     """
     def execute_heartbeat(self):
         self.get_player()
         self.get_hatched_eggs()
         self.get_inventory()
         self.check_awarded_badges()
+        self.add_get_map_objects_request()
         return self.send_requests()
 
     """
@@ -99,45 +100,6 @@ class PokeApi(object):
 
         ret = self.request_handler.send_requests()
         return ret #[player.get_structured_data(), inv.get_structured_data(), eggs.get_structured_data(), sett.get_structured_data(), badges.get_structured_data()]
-    
-    """
-    def get_settings(self):
-        settMessage = Messages_pb2.DownloadSettingsMessage()
-        settMessage.hash = '05daf51635c82611d1aac95c0b051d3ec088a930'
-        sett = ServerRequest(Requests_pb2.DOWNLOAD_SETTINGS, settMessage)
-        self.request_handler.add_request(sett)
-        self.request_handler.send_requests()
-
-        return sett.get_structured_data()
-
-    def get_player(self):
-        playerReq = ServerRequest(Requests_pb2.GET_PLAYER)
-        self.request_handler.add_request(playerReq)
-        self.request_handler.send_requests()
-
-        "" "
-        response = playerReq.get_structured_data()
-        player = PlayerProfile()
-        player.creation_time = response.creation_timestamp_ms
-        player.username = response.username
-        player.team = Team.TEAM_NONE
-        player.pokemon_storage = response.max_pokemon_storage
-        player.item_storage = response.max_item_storage
-        player.badge = response.equipped_badge
-        player.avatar = response.avatar
-        player.daily_bonus = response.daily_bonus
-        player.contact_settings = response.contact_settings
-        player.currencies = response.currencies
-        "" "
-        return response
-
-    def get_inventory(self):
-        inv = ServerRequest(Requests_pb2.GET_INVENTORY)
-        self.request_handler.add_request(inv)
-        self.request_handler.send_requests()
-
-        return inv.get_structured_data()
-    """
 
 
     """ Map object request to the server
@@ -168,6 +130,13 @@ class PokeApi(object):
         #parentCells = mapobjects.get_cellid(self.location_manager.get_latitude(), self.location_manager.get_longitude())
         mapObjectResponse = self._map_object_request(parentCells)
         return mapObjectResponse
+
+    def add_get_map_objects_request(self):
+        parentCells = mapobjects.get_neighbours_circular(self.location_manager.get_latitude(), self.location_manager.get_longitude())
+        self.get_map_objects(cell_id=parentCells,
+                             since_timestamp_ms=[0]*21,
+                             latitude=self.location_manager.get_latitude(),
+                             longitude=self.location_manager.get_longitude())
 
     """ Set position to location manager
     """

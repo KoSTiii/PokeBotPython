@@ -90,7 +90,7 @@ class RequestHandler(object):
 
         # we get auth ticket
         if response_envelope.HasField('auth_ticket'): #auth_ticket:
-            self.logger.info('changed auth ticket')
+            self.logger.debug('changed auth ticket')
             self.last_auth_ticket = AuthTicket()
             self.last_auth_ticket.CopyFrom(response_envelope.auth_ticket)
 
