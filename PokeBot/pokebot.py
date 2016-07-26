@@ -55,11 +55,11 @@ class PokeBot(object):
         self.data_manager = DataManager(self)
         self.player = DataPlayer(self.pokeapi, response[0].player_data)
         self.inventory = DataInventory(self.pokeapi, response[1].inventory_delta)
+        # TODO add hached eggs
+        # self.hached_eggs = DataInventory(self.pokeapi, response[2].)
+        # self.awarded_badges = DataInventory(self.pokeapi, response[3].)
 
         self.initialize_new_stepper(ClosestStepper(self, self.data_manager))
-        # TODO add hached eggs
-        # self.hached_eggs = 
-        # self.awarded_badges = 
     
     def initialize_new_stepper(self, stepper):
         self.stepper = stepper
