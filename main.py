@@ -3,12 +3,13 @@ import time
 import datetime
 
 import s2sphere
-import coloredlogs
+import colorama
+colorama.init(autoreset=True)
 
 from PokeApi.auth import PTCLogin, Auth
 from PokeApi.requesthandler import RequestHandler
 from PokeApi.serverrequest import ServerRequest
-from PokeApi.locations import LocationManager
+from PokeApi.locations import LocationManager, Coordinates
 from PokeApi.pokeapi import PokeApi
 from PokeApi import mapobjects
 from POGOProtos.Networking import Requests_pb2, Responses_pb2
@@ -17,13 +18,16 @@ from POGOProtos.Data import Gym_pb2
 from PokeBot.pokebot import PokeBot
 from PokeBot.botconfig import BotConfig
 
+from PokeBot.stepper import Stepper
+
 # setup loggers
-logging.basicConfig(format='%(asctime)s:%(levelname)s: %(message)s', level=logging.DEBUG)
+logging.basicConfig(format='[%(asctime)s][%(name)s][%(levelname)s] %(message)s', level=logging.DEBUG)
 logging.getLogger('requests').setLevel(logging.INFO)
 logging.getLogger('PokeApi').setLevel(logging.INFO)
 logging.getLogger('PokeApi.auth').setLevel(logging.INFO)
 logging.getLogger('PokeApi.RequestHandler').setLevel(logging.INFO)
 logging.getLogger('PokeBot').setLevel(logging.DEBUG)
+logging.getLogger('PokeBot.stepper').setLevel(logging.DEBUG)
 
 
 #auth = PTCLogin().login_user('bumbar1', 'bumbar1')
@@ -69,3 +73,18 @@ for map_cell in map_cells:
 configs = BotConfig.from_file('config.json')
 # BOT TEST
 bot = PokeBot(configs[0])
+bot.initialize()
+
+delta_time = 0
+for i in range(5):
+    # save time var for calculating delta time
+    start_time = time.time()
+
+    bot.update(delta_time)
+    time.sleep(2)
+
+    # calculate delta time
+    end_time = time.time()
+    delta_time = time.time() - start_time
+    print(delta_time)
+
