@@ -15,6 +15,11 @@
                 "release_under_cp": 20,
                 "release_under_iv": 0.8,
                 "cp_iv_logic": "or"
+            },
+            "Mew": {
+                "release_under_cp": 20,
+                "release_under_iv": 0.8,
+                "cp_iv_logic": "and"
             }
         },
         "items_filter": ["100", "101", "201"]
