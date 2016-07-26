@@ -42,13 +42,3 @@ class DataPokemon(basedata.BaseData):
         self.logger.info('Succesfuly transfered pokemon {}. Was awarded {} candy'
                          .format(self.get_pokemon_name(), response.candy_awarded))
         return response
-
-
-""" Class for MapPokemon
-"""
-class MapPokemon(basedata.BaseData):
-    pass
-
-
-class WildPokemon(basedata.BaseData):
-    pass
