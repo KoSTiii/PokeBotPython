@@ -1,6 +1,7 @@
 import logging
 import time
 import datetime
+import math
 
 import s2sphere
 import colorama
@@ -21,8 +22,8 @@ from PokeBot.botconfig import BotConfig
 from PokeBot.stepper import Stepper
 
 # setup loggers
-logging.basicConfig(format='[%(asctime)s][%(name)s][%(levelname)s] %(message)s', level=logging.DEBUG)
-logging.getLogger('requests').setLevel(logging.INFO)
+logging.basicConfig(format='[%(asctime)s][%(name)s][%(levelname)s] %(message)s', level=logging.DEBUG, datefmt="%d.%m.%Y %H:%M:%S")
+logging.getLogger('requests').setLevel(logging.WARNING)
 logging.getLogger('PokeApi').setLevel(logging.INFO)
 logging.getLogger('PokeApi.auth').setLevel(logging.INFO)
 logging.getLogger('PokeApi.RequestHandler').setLevel(logging.INFO)
