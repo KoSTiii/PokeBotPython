@@ -59,8 +59,8 @@ class Stepper(object):
                                           course,
                                           dist_in_meters)
         
-        self.logger.debug('Steps made {}, course {} degree in {} seconds. From position ({}, {}) to position ({}, {})'.format(
-            steps_made, course, delta_time, self.loc.get_latitude(), self.loc.get_longitude(), *new_pos))
+        self.logger.debug('Steps made %s, course %s degree in %s seconds. From position (%s, %s) to position (%s, %s)',
+            steps_made, course, delta_time, self.loc.get_latitude(), self.loc.get_longitude(), *new_pos)
         
         self.loc.set_location(*new_pos, 0)
         return new_pos
@@ -81,7 +81,7 @@ class ClosestStepper(Stepper):
             destination = items[0]
             course = Coordinates.angle_between_coords(*self.loc.get_lat_lng(), *destination.location)
 
-            self.logger.info('Walking to ({}, {}) which is {})'.format(*destination.location, destination.data_type.name))
+            self.logger.info('Walking to (%s, %s) which is %s)', *destination.location, destination.data_type.name)
 
             return course
         else:

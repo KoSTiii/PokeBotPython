@@ -17,7 +17,7 @@ class DataType(Enum):
 
 
 class DictData(object):
-    """
+    """ Data stored in dictionary for pokemon/forts
     """
 
     def __init__(self, unique_id, data_type, data, lat, lon, distance):
@@ -72,7 +72,7 @@ class DataManager(object):
         if fort.type == Gym_pb2.CHECKPOINT:
             pokestop_list = self.get_list_from_dict(DataType.FORT_POKESTOP)
             # get list item if we already have them saved
-            list_fort = (item for item in pokestop_list if item.data.id == fort.id) # generator comprehension
+            list_fort = [item for item in pokestop_list if item.data.id == fort.id] # list comprehension
 
             # check if we already have this fort in list
             # if we already have fort update them ()update distance

@@ -39,8 +39,8 @@ class PokeBot(object):
             return GoogleLogin().login_user(self.config.username, self.config.password)
         else:
             self.logger.error('wrong provider specified')
-            raise ValueError('{0}: provider is not supported. Supported providers: {1}'
-                             .format(self.config.provider, SUPPORTED_PROVIDERS))
+            raise ValueError('%s: provider is not supported. Supported providers: %s',
+                             self.config.provider, SUPPORTED_PROVIDERS)
 
     def initialize(self):
         """ Initialize bot

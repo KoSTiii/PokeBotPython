@@ -52,8 +52,8 @@ class BotConfig(object):
                          cfg['ignore_pokemon'],
                          pokemon_release_configs,
                          cfg['items_filter'])
+            configs.append(config)
         return configs
-            configs.append(config)  
 
     def __init__(self, provider, username, password, location, mode, cache, maxsteps, steps, ignore_pokemon, release_pokemon, items_filter):
         """ Initialize bot config
@@ -72,18 +72,18 @@ class BotConfig(object):
 
     def _check_providers(self, provider):
         if provider not in SUPPORTED_PROVIDERS:
-            raise ValueError('Provider {} is not supported.'.format(provider))
+            raise ValueError('Provider %s is not supported.', provider)
         return provider
 
     def _check_mode(self, mode):
         if mode not in SUPPORTED_MODES:
-            raise ValueError('Mode {} is not supported.'.format(mode))
+            raise ValueError('Mode %s is not supported.', mode)
         return mode
 
     def _check_ignore_pokemon(self, ignore_pokemon):
         for pokemon in ignore_pokemon:
             if not check_pokemon_name(pokemon):
-                raise ValueError('Unknown pokemon {}'.format(pokemon))
+                raise ValueError('Unknown pokemon %s', pokemon)
         return ignore_pokemon
 
     def _check_release_pokemon(self, release_pokemon):
@@ -95,7 +95,7 @@ class BotConfig(object):
     def _check_items_filter(self, items_filter):
         for item in items_filter:
             if not check_item_id(item):
-                raise ValueError('Item with id {} is not valid'.format(item))
+                raise ValueError('Item with id %s is not valid', item)
         return items_filter
     
     def get_location_manager(self):
@@ -123,7 +123,7 @@ class PokemonReleaseConfig(object):
 
     def _check_name(self, name):
         if (not check_pokemon_name(name)) and (name is 'any'):
-            raise ValueError('Unknown pokemon name or not "any". get: {}'.format(name))
+            raise ValueError('Unknown pokemon name or not "any". get: %s', name)
         return name
 
     def _check_release_under_iv(self, release_under_iv):
@@ -133,5 +133,5 @@ class PokemonReleaseConfig(object):
 
     def _check_cp_iv_logic(self, cp_iv_logic):
         if cp_iv_logic not in SUPPORTED_CP_IV_LOGIC:
-            raise ValueError('CP IV logic get unsoported operation of {}'.format(cp_iv_logic)) 
+            raise ValueError('CP IV logic get unsoported operation of %s', cp_iv_logic)
         return cp_iv_logic

@@ -1,3 +1,5 @@
+"""
+"""
 
 from PokeApi.data.player import DataPlayer
 from PokeApi.data.inventory import DataInventory

@@ -1,3 +1,6 @@
+"""
+"""
+
 import logging
 
 import json
@@ -20,7 +23,7 @@ class PTCLogin(Login):
         """ Constuctor. initializes base class
         """
         Login.__init__(self)
-    
+
     def get_provider(self):
         """ @retrun provider string for auth object
         """
@@ -30,7 +33,7 @@ class PTCLogin(Login):
         """ Login into server with username and password
         @return auth object
         """
-        self.logger.info('Started logging into ptc services with username=%s' % username)
+        self.logger.info('Started logging into ptc services with username=%s', username)
 
         head = {'User-Agent': 'niantic'}
         r = self.auth.session.get(apiconfig.LOGIN_URL, headers=head)

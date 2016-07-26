@@ -1,3 +1,6 @@
+"""
+"""
+
 import struct
 import time
 
@@ -35,7 +38,8 @@ def get_cellid(lat, long):
 def get_neighbours(lat, long):
     """ dobi krog okoli centra tocke
     """
-    # ns = north east, ew = east west (ratio between 1 feet and degree) its different on diferent places on earth (sphere)!!
+    # ns = north east, ew = east west (ratio between 1 feet and degree) 
+    # its different on diferent places on earth (sphere)!!
     ns = 0.0025
     ew = 0.0025
     walk = []

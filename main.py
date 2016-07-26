@@ -87,5 +87,4 @@ for i in range(5):
     # calculate delta time
     end_time = time.time()
     delta_time = time.time() - start_time
-    print(delta_time)
 
