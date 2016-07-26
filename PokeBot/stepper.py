@@ -2,6 +2,7 @@ import logging
 import random
 
 from PokeApi.locations import Coordinates
+from PokeBot.helpers import clamp
 
 
 def steps_to_meters(steps):
@@ -29,9 +30,14 @@ class Stepper(object):
 
         self._last_course = random.randint(0, 360)
 
-    """ return heading course in deggress (0 - 360)
-    """
+    def _update(self):
+        """
+        Update items each tick
+        """
+
     def get_course(self):
+        """ return heading course in deggress (0 - 360)
+        """
         random_course = random.randint(-60, 60)
         course = self._last_course + random_course
 
@@ -41,26 +47,36 @@ class Stepper(object):
             course = 360 + course
         self._last_course = course
         return course
-
-    """ Change walk pace to make more humanish
-    """
+    
     def get_speed(self):
+        """ Change walk pace to make more humanish
+        """
         return random.uniform(self.steps - Stepper.STEP_STD_DEV, self.steps + Stepper.STEP_STD_DEV)
 
-    """ Stepper main update method (take step)
-    update main location and also return it
-    """
+    def get_distance(self, maxdistance):
+        """
+        return distance in meters to fine tune positioning
+        """
+        return maxdistance
+    
+
     def take_step(self, delta_time):
+        """ Stepper main update method (take step)
+        update main location and also return it
+        """
         steps_made = self.get_speed() * delta_time
         dist_in_meters = steps_to_meters(steps_made)
+
+        self._update()
+        distance = self.get_distance(dist_in_meters)
         course = self.get_course()
         new_pos = Coordinates.extrapolate(self.loc.get_latitude(),
                                           self.loc.get_longitude(),
                                           course,
-                                          dist_in_meters)
+                                          distance)
         
-        self.logger.debug('Steps made %s, course %s degree in %s seconds. From position (%s, %s) to position (%s, %s)',
-            steps_made, course, delta_time, self.loc.get_latitude(), self.loc.get_longitude(), *new_pos)
+        self.logger.debug('Moved %sm, course %s degree in %s seconds. From position (%s, %s) to position (%s, %s)',
+            distance, course, delta_time, self.loc.get_latitude(), self.loc.get_longitude(), *new_pos)
         
         self.loc.set_location(*new_pos, 0)
         return new_pos
@@ -72,16 +88,32 @@ class ClosestStepper(Stepper):
         Stepper.__init__(self, pokebot)
         self.datamanager = datamanager
         self.mode = self.pokebot.config.mode
+        self.items = None
+
+    def _update(self):
+        """
+        Update items each tick
+        """
+        self.items = self.datamanager.sorted_items(self.mode)
+
+    def get_distance(self, maxdistance):
+        """
+        return max distance if object distance > maxdistance
+        """
+        self.logger.debug('Distance: %s', clamp(self.items[0].distance, 0, maxdistance))
+        return clamp(self.items[0].distance, 0, maxdistance)
 
     """ Return course to the closest object
     """
     def get_course(self):
-        items = self.datamanager.sorted_items(self.mode)
-        if items:
-            destination = items[0]
+        if self.items:
+            destination = self.items[0]
             course = Coordinates.angle_between_coords(*self.loc.get_lat_lng(), *destination.location)
 
-            self.logger.info('Walking to (%s, %s) which is %s)', *destination.location, destination.data_type.name)
+            self.logger.info('Walking to (%s, %s, %sm) which is %s', 
+                             *destination.location,
+                             destination.distance,
+                             destination.data_type.name)
 
             return course
         else:

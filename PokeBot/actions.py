@@ -1,3 +1,4 @@
+import time
 import logging
 
 from POGOProtos.Inventory_pb2 import ItemId
@@ -15,9 +16,34 @@ class Action(object):
         self.data = data
         self.pokeapi = self.pokebot.pokeapi
         self.loc = self.pokeapi.location_manager
+        # set from dict data
+        self.dict_data = None
 
-    def make_action(self):
-        raise NotImplementedError
+
+    def do_action(self):
+        """
+        Do action if check_action() return True
+        """
+        if self.check_action():
+            self._make_action()
+
+    def is_active(self):
+        """
+        Check if this item is active
+        """
+        return False
+
+    def check_action(self):
+        """
+        Check action if is possible to execute before execution
+        """
+        return False
+
+    def _make_action(self):
+        """
+        action exetution method
+        """
+        return False
 
 
 class FortPokestopAction(Action):
@@ -28,12 +54,34 @@ class FortPokestopAction(Action):
     def __init__(self, pokebot, data):
         Action.__init__(self, pokebot, data)
 
-    def make_action(self):
-        self.logger.info('Spining fort at position (%s,%s), my position (%s,%s)', 
+    def is_active(self):
+        """
+        Check if pokestop is enabled and is not on cooldown
+        """
+        if self.data.cooldown_complete_timestamp_ms:
+            fort_cooldown = self.data.cooldown_complete_timestamp_ms / 1000.0
+            diff = time.time() - fort_cooldown
+            # if diif is less than 0 means that fort is on cooldown
+            if diff < 0:
+                return False
+        
+        if self.data.enabled:
+            return True
+        return False
+
+    def check_action(self):
+        """
+        if pokestop is acvtive and distance is less than 40
+        """
+        if self.is_active() and self.dict_data.distance <= 40:
+            return True
+        return False
+
+    def _make_action(self):
+        self.logger.info('Spining pokestop (%s) at position (%s,%s)', 
+                         self.data.id,
                          self.data.latitude,
-                         self.data.longitude,
-                         self.loc.latitude,
-                         self.loc.longitude)
+                         self.data.longitude)
         self.pokeapi.fort_search(fort_id=self.data.id, 
                                  player_latitude=self.loc.get_latitude(), 
                                  player_longitude=self.loc.get_longitude(), 
@@ -41,13 +89,15 @@ class FortPokestopAction(Action):
                                  fort_longitude=self.data.longitude)
         resp = self.pokeapi.send_requests()
         if resp.result != 1:
-            self.logger.error('Coudnt spin pokestop at (%s, %s), response code %s', 
+            self.logger.error('Coudnt spin pokestop (%s) at (%s, %s), response code %s', 
+                              self.data.id,
                               self.data.latitude,
                               self.data.longitude,
                               FortSearchResponse.Result.Name(resp.result))
             return False
 
-        self.logger.info('Finished spining fort, Loot:')
+        self.logger.info('Finished spining fort (%s)', self.data.id)
+        self.logger.info('Loot:')
         self.logger.info('%s xp', resp.experience_awarded)
         for item in resp.items_awarded:
             self.logger.info('%sx %s (Total: %s)',

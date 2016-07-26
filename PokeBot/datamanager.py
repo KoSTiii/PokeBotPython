@@ -28,16 +28,23 @@ class DictData(object):
         self.data = data
         self.location = (lat, lon)
         self.distance = distance
+        self.action.dict_data = self
+        # check if this item is active
         self.active = True
     
     def __str__(self):
         return str('DictData: id({}) type({})'.format(self.unique_id, str(self.data_type.name)))
 
+    def update_active(self):
+        self.active = self.action.is_active()
+
     def try_action(self):
-        if self.active and self.distance <= 40:
-            if self.action.make_action():
-                self.active = False
-                return True
+        """
+        Try complete action
+        """
+        if self.action.do_action():
+            self.active = False
+            return True
         return False
 
 
@@ -105,17 +112,20 @@ class DataManager(object):
             if list_fort:
                 dist = Coordinates.distance_haversine_km(*self.loc.get_lat_lng(), fort.latitude, fort.longitude)
                 list_fort[0].distance = dist
+                list_fort[0].data.CopyFrom(fort)
+                list_fort[0].update_active()
             # if we dont have fort add them
             else:
                 dist = Coordinates.distance_haversine_km(*self.loc.get_lat_lng(), fort.latitude, fort.longitude)
-                self.get_list_from_dict(DataType.FORT_POKESTOP).append(
-                    DictData(self.get_counter(),
+                dict_data = DictData(self.get_counter(),
                              DataType.FORT_POKESTOP, 
                              self.get_action_class(DataType.FORT_POKESTOP)(self.pokebot, fort),
                              fort,
                              fort.latitude,
                              fort.longitude,
-                             dist))
+                             dist)
+                dict_data.update_active()
+                self.get_list_from_dict(DataType.FORT_POKESTOP).append(dict_data)
 
         # fort type is gym
         elif fort.type == Gym_pb2.GYM:
@@ -180,7 +190,11 @@ class DataManager(object):
                              npokemon_pos.lat().degrees,
                              npokemon_pos.lng().degrees,
                              dist))
-        
+
+    def execute_actions(self):
+        """
+        Execute action from dict_data.action
+        """
         # execute all actions
         items_to_execute_action = self.sorted_items(self.pokebot.config.mode)
         for item in items_to_execute_action:

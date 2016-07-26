@@ -77,7 +77,7 @@ bot = PokeBot(configs[0])
 bot.initialize()
 
 delta_time = 0
-for i in range(5):
+while True:
     # save time var for calculating delta time
     start_time = time.time()
 

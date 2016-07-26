@@ -78,7 +78,8 @@ class PokeBot(object):
         map_cells = hearthbeat_response[4].map_cells
         # update all data for pokemon, forts, ...
         self.data_manager.update_dict(map_cells)
-        #self.logger.info(map_cells)
-
+        # execute actions
+        self.data_manager.execute_actions()
+        # move to new location
         self.stepper.take_step(delta_time)
         #dijkstra_algorithm()
