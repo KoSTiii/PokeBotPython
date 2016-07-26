@@ -18,12 +18,11 @@ from PokeBot.pokebot import PokeBot
 from PokeBot.botconfig import BotConfig
 
 # setup loggers
-#logging.basicConfig(format='%(asctime)s:%(levelname)s: %(message)s', level=logging.DEBUG)
-coloredlogs.install()
-logging.getLogger('requests').setLevel(logging.DEBUG)
-logging.getLogger('PokeApi').setLevel(logging.DEBUG)
-logging.getLogger('PokeApi.auth').setLevel(logging.DEBUG)
-logging.getLogger('PokeApi.RequestHandler').setLevel(logging.DEBUG)
+logging.basicConfig(format='%(asctime)s:%(levelname)s: %(message)s', level=logging.DEBUG)
+logging.getLogger('requests').setLevel(logging.INFO)
+logging.getLogger('PokeApi').setLevel(logging.INFO)
+logging.getLogger('PokeApi.auth').setLevel(logging.INFO)
+logging.getLogger('PokeApi.RequestHandler').setLevel(logging.INFO)
 logging.getLogger('PokeBot').setLevel(logging.DEBUG)
 
 
