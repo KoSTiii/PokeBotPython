@@ -1,8 +1,14 @@
 import time
 import logging
 
+from colorama import Fore
+
+# FortPokestopAction
 from POGOProtos.Inventory_pb2 import ItemId
 from POGOProtos.Networking.Responses_pb2 import FortSearchResponse
+# CatchPokemonAction
+from POGOProtos.Enums_pb2 import PokemonId
+from POGOProtos.Networking.Responses_pb2 import EncounterResponse, CatchPokemonResponse
 
 
 class Action(object):
@@ -51,9 +57,6 @@ class FortPokestopAction(Action):
     Action for spining the pokestop
     """
 
-    def __init__(self, pokebot, data):
-        Action.__init__(self, pokebot, data)
-
     def is_active(self):
         """
         Check if pokestop is enabled and is not on cooldown
@@ -77,9 +80,17 @@ class FortPokestopAction(Action):
             return True
         return False
 
+    def _fort_info(self):
+        self.pokeapi.fort_details(fort_id=self.data.id,
+                                  latitude=self.data.latitude,
+                                  longitude=self.data.longitude)
+        response = self.pokeapi.send_requests()
+        return response.name
+
     def _make_action(self):
-        self.logger.info('Spining pokestop (%s) at position (%s,%s)', 
-                         self.data.id,
+        fort_name = self._fort_info()
+        self.logger.info(Fore.YELLOW + 'Spining pokestop (%s) at position (%s,%s)', 
+                         fort_name,
                          self.data.latitude,
                          self.data.longitude)
         self.pokeapi.fort_search(fort_id=self.data.id, 
@@ -88,28 +99,154 @@ class FortPokestopAction(Action):
                                  fort_latitude=self.data.latitude, 
                                  fort_longitude=self.data.longitude)
         resp = self.pokeapi.send_requests()
-        if resp.result != 1:
-            self.logger.error('Coudnt spin pokestop (%s) at (%s, %s), response code %s', 
-                              self.data.id,
-                              self.data.latitude,
-                              self.data.longitude,
-                              FortSearchResponse.Result.Name(resp.result))
+        # result is not success (1) or inventory full (4)
+        if resp.result not in [1, 4]:
+            self.logger.info(Fore.RED + 'Coudnt spin pokestop (%s) at (%s, %s), response code %s', 
+                             self.data.id,
+                             self.data.latitude,
+                             self.data.longitude,
+                             FortSearchResponse.Result.Name(resp.result))
+            return False
+        # if inventory full
+        elif resp.result == 4:
+            # TODO do something if invetory is full
+            self.logger.info(Fore.RED + 'Inventory is full aborting pokestops')
             return False
 
-        self.logger.info('Finished spining fort (%s)', self.data.id)
-        self.logger.info('Loot:')
-        self.logger.info('%s xp', resp.experience_awarded)
+        #self.logger.info('Finished spining fort (%s)', self.data.id)
+        self._reward_log(resp)
+        return True
+
+    def _reward_log(self, resp):
+        self.logger.info(Fore.GREEN + 'Loot:')
+        self.logger.info(Fore.GREEN + '%s xp', resp.experience_awarded)
+
+        temp_items = {}
         for item in resp.items_awarded:
-            self.logger.info('%sx %s (Total: %s)',
+            if str(item.item_id) not in temp_items.keys():
+                temp_items[str(item.item_id)] = item.item_count
+            else:
+                temp_items[str(item.item_id)] += item.item_count
+
+        for item in temp_items:      
+            self.logger.info(Fore.GREEN + '%sx %s (Total: %s)',
                              item.item_count,
                              ItemId.Name(item.item_id),
                              self.pokebot.inventory.get_items_count(item.item_id))
-        return True
-
 
 class CatchPokemonAction(Action):
     """
+    catch pokemon action for catching
     """
 
     def __init__(self, pokebot, data):
         Action.__init__(self, pokebot, data)
+        self.catch_try = 0
+        self.last_used_pokeball = 1
+    
+    def is_active(self):
+        """
+        Check if pokestop is enabled and is not on cooldown
+        this is abstract class. always return False
+        """
+        return True
+
+    def check_action(self):
+        """
+        if pokemon is active and distance is less than 40
+        """
+        if self.is_active() and self.dict_data.distance <= 40:
+            return True
+        return False
+
+    def _make_encounter(self):
+        self.pokeapi.encounter(encounter_id=self.data.encounter_id,
+                               spawnpoint_id=self.data.spawnpoint_id,
+                               player_latitude=self.loc.get_latitude(),
+                               player_longitude=self.loc.get_longitude())
+        return self.pokeapi.send_requests()
+
+    def _choose_pokeball(self, catch_rate):
+        pokeballs_count = self.pokebot.inventory.get_pokeball_stock()
+        pokeballs_count[self.last_used_pokeball] -= self.catch_try
+        pokeball = 1
+
+        for i in range(3):
+            if pokeballs_count[i] > 0:
+                pokeball = i + 1
+                break
+        if pokeball == -1:
+            # we are out of pokeballs
+            self.logger.info(Fore.RED + 'Out of pokeballs :(')
+            raise ValueError('Out of pokeballs')          
+        return pokeball
+
+    def _make_action(self):
+        self.logger.info(Fore.GREEN + 'Trying to catch (%s) at position (%s,%s)', 
+                         PokemonId.Name(self.data.id),
+                         self.data.latitude,
+                         self.data.longitude)
+        
+        # do the encounter request
+        encounter_response = self._make_encounter()
+        if encounter_response.status not in [EncounterResponse.Status.ENCOUNTER_SUCCESS,
+                                             EncounterResponse.Status.POKEMON_INVENTORY_FULL]:
+            self.logger.info(Fore.RED + 'Encounter failed with reason %s', 
+                              EncounterResponse.Status.Name(encounter_response.status))
+            return False
+        # check if we have inventory full
+        elif encounter_response.status == EncounterResponse.Status.POKEMON_INVENTORY_FULL:
+            self.logger.info(Fore.RED + 'Pokemon inventory is full')
+            return False
+
+        catch_rate = encounter_response.capture_probability
+        wpokemon = encounter_response.wild_pokemon
+
+        # try to catch pokemon
+        self.catch_try = 0
+        while True:
+            try:
+                pokeball = self._choose_pokeball(catch_rate)
+            except ValueError:
+                return False
+            
+            # make catch pokemon request
+            self.pokeapi.catch_pokemon(encounter_id=wpokemon.encounter_id,
+                                       pokeball=pokeball,
+                                       normalized_reticle_size=1.950,
+                                       spawn_point_guid=wpokemon.spawnpoint_id,
+                                       hit_pokemon=True,
+                                       spin_modifier=1,
+                                       NormalizedHitPosition=1)
+            catch_pokemon_response = self.pokeapi.send_requests()
+
+            # handle response
+            if catch_pokemon_response.result == CatchPokemonResponse.CatchStatus.CATCH_ERROR:
+                self.logger.info(Fore.RED + 'Coudnt catch pokemon (%s) at (%s, %s), response code %s', 
+                                  PokemonId.Name(wpokemon.id),
+                                  wpokemon.latitude,
+                                  wpokemon.longitude,
+                                  CatchPokemonResponse.CatchStatus.Name(catch_pokemon_response.result))
+                return False
+            elif catch_pokemon_response.result == CatchPokemonResponse.CatchStatus.CATCH_ESCAPE:
+                self.logger.info(Fore.RED + 'Pokemon %s escaped', PokemonId.Name(wpokemon.id))
+            elif catch_pokemon_response.result == CatchPokemonResponse.CatchStatus.CATCH_FLEE:
+                self.logger.info(Fore.RED + 'Pokemon %s fleed', PokemonId.Name(wpokemon.id))
+            elif catch_pokemon_response.result == CatchPokemonResponse.CatchStatus.CATCH_MISSED:
+                self.logger.info('Missed pokeball, retrying...')
+                self.catch_try += 1
+                continue
+            elif catch_pokemon_response.result == CatchPokemonResponse.CatchStatus.CATCH_SUCCESS:
+                # we sucessfuly catched pokemon
+                self.logger.info(Fore.YELLOW + 'Captured pokemon (%s) [CP %s]', 
+                                  PokemonId.Name(wpokemon.id),
+                                  wpokemon.pokemon_data.cp)
+                return True
+            return False
+
+
+class MapPokemon(CatchPokemonAction):
+
+    def is_active(self):
+        if self.data.expiration_timestamp_ms:
+            exp_time = self.data.expiration_timestamp_ms / 1000.0
