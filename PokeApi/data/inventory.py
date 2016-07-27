@@ -3,6 +3,8 @@
 
 from PokeApi.data import basedata
 
+from POGOProtos.Inventory_pb2 import ItemId
+
 
 class DataInventory(basedata.BaseData):
     """
@@ -36,3 +38,13 @@ class DataInventory(basedata.BaseData):
                     if inv.inventory_item_data.item.item_id == item_id:
                         return inv.inventory_item_data.item.count
         return 0
+
+    def get_pokeball_stock(self):
+        """
+        return tuple of pokeball stock (pokeball, greatball, ultraball)
+        """
+        pokeball = self.get_items_count(ItemId.ITEM_POKE_BALL)
+        greatball = self.get_items_count(ItemId.ITEM_GREAT_BALL)
+        ultraball = self.get_items_count(ItemId.ITEM_ULTRA_BALL)
+        return [pokeball, greatball, ultraball]
+        
