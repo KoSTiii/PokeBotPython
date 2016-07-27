@@ -27,7 +27,7 @@ class Cache(object):
 
         try:
             self.load()
-        except:
+        except Exception:
             pass
 
     def cache_reset(self):
@@ -41,8 +41,6 @@ class Cache(object):
         return cache entry for key
         if key not exists then raise exception
         """
-        if not self.cache[key]:
-            raise KeyError
         return self.cache[key]
     
     def add_cache(self, key, value):
@@ -50,16 +48,6 @@ class Cache(object):
         add new cache entry
         if key exists then raise exception
         """
-        if self.cache[key]:
-            raise KeyError
-        self.cache[key] = value
-
-    def update(self, key, value):
-        """
-        update cache value for new one
-        """
-        if not self.cache[key]:
-            raise KeyError
         self.cache[key] = value
 
     def get_all_keys(self):

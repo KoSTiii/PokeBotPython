@@ -23,6 +23,7 @@ class PokeBot(object):
         self.logger = logging.getLogger(__name__)
         self.config = config
         self.cache = Cache('cache_{}.json'.format(self.config.username))
+        self.cache.cache_initialize()
         
         self.auth = self._authorize()
         self.pokeapi = PokeApi(self.auth, self.config.get_location_manager())
@@ -35,6 +36,21 @@ class PokeBot(object):
     def _authorize(self):
         """ Authorize account with sprecified info from json file
         """
+        # try to login with token
+        """
+        try:
+            # TODO refresh token
+            token = self.cache.get_cache('login.token')
+            provider = self.cache.get_cache('login.provider')
+            
+            if provider == 'ptc':
+                return PTCLogin().login_token(token)
+            elif provider == 'google':
+                return GoogleLogin().login_token(token)
+        except Exception:
+            self.logger.debug('Could not login with token')
+        """
+
         if self.config.provider == 'ptc':
             return PTCLogin().login_user(self.config.username, self.config.password)
         elif self.config.provider == 'google':
@@ -62,9 +78,11 @@ class PokeBot(object):
         # self.awarded_badges = DataInventory(self.pokeapi, response[3].)
 
         self.initialize_new_stepper(ClosestStepper(self, self.data_manager))
-        
-        # initialize Cache
-        self.cache.cache_initialize()
+
+        # save cache login details
+        self.cache.add_cache('login.token', self.auth.access_token)
+        self.cache.add_cache('login.provider', self.auth.provider)
+        self.cache.save()
     
     def initialize_new_stepper(self, stepper):
         self.stepper = stepper
@@ -82,10 +100,12 @@ class PokeBot(object):
 
         map_cells = hearthbeat_response[4].map_cells
         # update all data for pokemon, forts, ...
-        self.data_manager.update_dict(map_cells)
+        self.data_manager.update(map_cells)
         # execute actions
         self.data_manager.execute_actions()
         # move to new location
         self.stepper.take_step(delta_time)
         #dijkstra_algorithm()
-        
+
+        self.cache.add_cache('location', '{},{}'.format(*self.pokeapi.location_manager.get_lat_lng()))
+        self.cache.save()

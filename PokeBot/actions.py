@@ -1,5 +1,6 @@
 import time
 import logging
+from abc import ABC, abstractmethod
 
 from colorama import Fore
 
@@ -11,7 +12,7 @@ from POGOProtos.Enums_pb2 import PokemonId
 from POGOProtos.Networking.Responses_pb2 import EncounterResponse, CatchPokemonResponse
 
 
-class Action(object):
+class Action(ABC):
     """
     Base Action class for handling actions
     """
@@ -33,23 +34,23 @@ class Action(object):
         if self.check_action():
             self._make_action()
 
+    @abstractmethod
     def is_active(self):
         """
         Check if this item is active
         """
-        return False
 
+    @abstractmethod
     def check_action(self):
         """
         Check action if is possible to execute before execution
         """
-        return False
 
+    @abstractmethod
     def _make_action(self):
         """
         action exetution method
         """
-        return False
 
 
 class FortPokestopAction(Action):
@@ -130,9 +131,10 @@ class FortPokestopAction(Action):
 
         for item in temp_items:      
             self.logger.info(Fore.GREEN + '%sx %s (Total: %s)',
-                             item.item_count,
-                             ItemId.Name(item.item_id),
-                             self.pokebot.inventory.get_items_count(item.item_id))
+                             temp_items[item],
+                             ItemId.Name(int(item)),
+                             self.pokebot.inventory.get_items_count(int(item)))
+
 
 class CatchPokemonAction(Action):
     """
@@ -143,6 +145,12 @@ class CatchPokemonAction(Action):
         Action.__init__(self, pokebot, data)
         self.catch_try = 0
         self.last_used_pokeball = 1
+
+    @abstractmethod
+    def _get_pokemon_id(self):
+        """
+        return pokemon id
+        """
     
     def is_active(self):
         """
@@ -182,20 +190,22 @@ class CatchPokemonAction(Action):
         return pokeball
 
     def _make_action(self):
-        self.logger.info(Fore.GREEN + 'Trying to catch (%s) at position (%s,%s)', 
-                         PokemonId.Name(self.data.id),
+        pokemon_id = self._get_pokemon_id()
+
+        self.logger.info(Fore.YELLOW + 'Trying to catch (%s) at position (%s,%s)', 
+                         PokemonId.Name(pokemon_id),
                          self.data.latitude,
                          self.data.longitude)
         
         # do the encounter request
         encounter_response = self._make_encounter()
-        if encounter_response.status not in [EncounterResponse.Status.ENCOUNTER_SUCCESS,
-                                             EncounterResponse.Status.POKEMON_INVENTORY_FULL]:
+        if encounter_response.status not in [EncounterResponse.ENCOUNTER_SUCCESS,
+                                             EncounterResponse.POKEMON_INVENTORY_FULL]:
             self.logger.info(Fore.RED + 'Encounter failed with reason %s', 
-                              EncounterResponse.Status.Name(encounter_response.status))
+                             EncounterResponse.Status.Name(encounter_response.status))
             return False
         # check if we have inventory full
-        elif encounter_response.status == EncounterResponse.Status.POKEMON_INVENTORY_FULL:
+        elif encounter_response.status == EncounterResponse.POKEMON_INVENTORY_FULL:
             self.logger.info(Fore.RED + 'Pokemon inventory is full')
             return False
 
@@ -221,32 +231,43 @@ class CatchPokemonAction(Action):
             catch_pokemon_response = self.pokeapi.send_requests()
 
             # handle response
-            if catch_pokemon_response.result == CatchPokemonResponse.CatchStatus.CATCH_ERROR:
+            if catch_pokemon_response.status == CatchPokemonResponse.CATCH_ERROR:
                 self.logger.info(Fore.RED + 'Coudnt catch pokemon (%s) at (%s, %s), response code %s', 
-                                  PokemonId.Name(wpokemon.id),
+                                  PokemonId.Name(wpokemon.pokemon_data.pokemon_id),
                                   wpokemon.latitude,
                                   wpokemon.longitude,
                                   CatchPokemonResponse.CatchStatus.Name(catch_pokemon_response.result))
                 return False
-            elif catch_pokemon_response.result == CatchPokemonResponse.CatchStatus.CATCH_ESCAPE:
+            elif catch_pokemon_response.status == CatchPokemonResponse.CATCH_ESCAPE:
                 self.logger.info(Fore.RED + 'Pokemon %s escaped', PokemonId.Name(wpokemon.id))
-            elif catch_pokemon_response.result == CatchPokemonResponse.CatchStatus.CATCH_FLEE:
+            elif catch_pokemon_response.status == CatchPokemonResponse.CATCH_FLEE:
                 self.logger.info(Fore.RED + 'Pokemon %s fleed', PokemonId.Name(wpokemon.id))
-            elif catch_pokemon_response.result == CatchPokemonResponse.CatchStatus.CATCH_MISSED:
+            elif catch_pokemon_response.status == CatchPokemonResponse.CATCH_MISSED:
                 self.logger.info('Missed pokeball, retrying...')
                 self.catch_try += 1
                 continue
-            elif catch_pokemon_response.result == CatchPokemonResponse.CatchStatus.CATCH_SUCCESS:
+            elif catch_pokemon_response.status == CatchPokemonResponse.CATCH_SUCCESS:
                 # we sucessfuly catched pokemon
                 self.logger.info(Fore.YELLOW + 'Captured pokemon (%s) [CP %s]', 
-                                  PokemonId.Name(wpokemon.id),
-                                  wpokemon.pokemon_data.cp)
+                                 PokemonId.Name(wpokemon.pokemon_data.pokemon_id),
+                                 wpokemon.pokemon_data.cp)
                 return True
             return False
 
 
-class MapPokemon(CatchPokemonAction):
+class MapPokemonCatchAction(CatchPokemonAction):
 
-    def is_active(self):
-        if self.data.expiration_timestamp_ms:
-            exp_time = self.data.expiration_timestamp_ms / 1000.0
+    def _get_pokemon_id(self):
+        """
+        return pokemon id
+        """
+        return self.data.pokemon_id
+
+
+class WildPokemonCatchAction(CatchPokemonAction):
+
+    def _get_pokemon_id(self):
+        """
+        return pokemon id
+        """
+        return self.data.pokemon_data.pokemon_id

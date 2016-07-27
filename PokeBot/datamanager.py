@@ -3,7 +3,7 @@ from enum import Enum
 from s2sphere import LatLng, Cell, CellId
 
 from PokeApi.locations import Coordinates
-from PokeBot.actions import Action, FortPokestopAction
+from PokeBot.actions import Action, FortPokestopAction, CatchPokemonAction, MapPokemonCatchAction, WildPokemonCatchAction
 from POGOProtos.Data import Gym_pb2
 
 
@@ -35,6 +35,9 @@ class DictData(object):
     def __str__(self):
         return str('DictData: id({}) type({})'.format(self.unique_id, str(self.data_type.name)))
 
+    def __eq__(self, other):
+        return self.unique_id == other.unique_id
+
     def update_active(self):
         self.active = self.action.is_active()
 
@@ -42,10 +45,10 @@ class DictData(object):
         """
         Try complete action
         """
-        if self.action.do_action():
-            self.active = False
-            return True
-        return False
+        return self.action.do_action()
+            # self.active = False
+            # return True
+        # return False
 
 
 class DataManager(object):
@@ -75,8 +78,8 @@ class DataManager(object):
         return {
             DataType.FORT_GYM.name: Action,
             DataType.FORT_POKESTOP.name: FortPokestopAction,
-            DataType.WILD_POKEMON.name: Action,
-            DataType.CATCHABLE_POKEMON.name: Action,
+            DataType.WILD_POKEMON.name: WildPokemonCatchAction,
+            DataType.CATCHABLE_POKEMON.name: MapPokemonCatchAction,
             DataType.NEARBY_POKEMON.name: Action
         }
 
@@ -93,22 +96,47 @@ class DataManager(object):
 
     def reset_counter(self):
         self.unique_counter = 0
+    
+    def update_item_to_dict(self, item_type, item, item_lat, item_lng):
+        """
+        try update item if already exists, if not then add new
+        """
+        list_items_dict = self.get_list_from_dict(item_type)
+        # try to get all items with same date
+        list_items = [itm for itm in list_items_dict if itm.data == item]
+        dist = Coordinates.distance_haversine_km(*self.loc.get_lat_lng(), item_lat, item_lng)
+
+        # check if we already have this item in list
+        # if we already have item update them (update distance)
+        if list_items:
+            list_items[0].distance = dist
+            list_items[0].data.CopyFrom(item)
+            list_items[0].update_active()
+        # create new dict_data
+        else:
+            dict_data = DictData(self.get_counter(),
+                                 item_type, 
+                                 self.get_action_class(item_type)(self.pokebot, item),
+                                 item,
+                                 item_lat,
+                                 item_lng,
+                                 dist)
+            dict_data.update_active()
+            self.get_list_from_dict(item_type).append(dict_data)
 
     def update_forts(self, fort):
         """ update fort with new value. if we find new fort add to list
         """
-        # check mode
-        if self.pokebot.config.mode not in ['all', 'pokestop']:
-            return
-
         # fort type is pokestop
         if fort.type == Gym_pb2.CHECKPOINT:
-            pokestop_list = self.get_list_from_dict(DataType.FORT_POKESTOP)
+            self.update_item_to_dict(DataType.FORT_POKESTOP, fort, fort.latitude, fort.longitude)
+            #pokestop_list = self.get_list_from_dict(DataType.FORT_POKESTOP)
             # get list item if we already have them saved
-            list_fort = [item for item in pokestop_list if item.data.id == fort.id] # list comprehension
+            #list_fort = [item for item in pokestop_list if item.data.id == fort.id] # list comprehension
 
             # check if we already have this fort in list
             # if we already have fort update them (update distance)
+            """
             if list_fort:
                 dist = Coordinates.distance_haversine_km(*self.loc.get_lat_lng(), fort.latitude, fort.longitude)
                 list_fort[0].distance = dist
@@ -116,6 +144,7 @@ class DataManager(object):
                 list_fort[0].update_active()
             # if we dont have fort add them
             else:
+                "" "
                 dist = Coordinates.distance_haversine_km(*self.loc.get_lat_lng(), fort.latitude, fort.longitude)
                 dict_data = DictData(self.get_counter(),
                              DataType.FORT_POKESTOP, 
@@ -126,6 +155,7 @@ class DataManager(object):
                              dist)
                 dict_data.update_active()
                 self.get_list_from_dict(DataType.FORT_POKESTOP).append(dict_data)
+                """
 
         # fort type is gym
         elif fort.type == Gym_pb2.GYM:
@@ -137,59 +167,48 @@ class DataManager(object):
                 DictData(self.get_counter(), DataType.FORT_GYM, fort, fort.latitude, fort.longitude, dist))
             """
 
-    def update_pokemons(self, pokemon):
+    def update_wild_pokemon(self, pokemon):
         """ Update pokemon in dict
         """
-        # check mode
-        if self.pokebot.config.mode not in ['all', 'pokemon']:
-            return
-        
 
-    def update_dict(self, map_cells):
+    def update(self, map_cells):
         """ Start updating dictionary with new values or add existing values
         """
         # update all dicts
         for cell in map_cells:
-            # update forts
-            for fort in cell.forts:
-                self.update_forts(fort)
 
-            # update wild pokemons
-            for wpokemon in cell.wild_pokemons:
-                dist = Coordinates.distance_haversine_km(*self.loc.get_lat_lng(), wpokemon.latitude, wpokemon.longitude)
-                self.get_list_from_dict(DataType.WILD_POKEMON).append(
-                    DictData(self.get_counter(),
-                             DataType.WILD_POKEMON,
-                             self.get_action_class(DataType.WILD_POKEMON)(self.pokebot, wpokemon),
-                             wpokemon,
-                             wpokemon.latitude,
-                             wpokemon.longitude,
-                             dist))
+            # check if we farm pokestops
+            if self.pokebot.config.mode in ['all', 'pokestop']:
+                # update forts
+                for fort in cell.forts:
+                    self.update_forts(fort)
 
-            # update catchable pokemon
-            for cpokemon in cell.catchable_pokemons:
-                dist = Coordinates.distance_haversine_km(*self.loc.get_lat_lng(), cpokemon.latitude, cpokemon.longitude)
-                self.get_list_from_dict(DataType.CATCHABLE_POKEMON).append(
-                    DictData(self.get_counter(),
-                             DataType.CATCHABLE_POKEMON,
-                             self.get_action_class(DataType.CATCHABLE_POKEMON)(self.pokebot, cpokemon),
-                             cpokemon,
-                             cpokemon.latitude,
-                             cpokemon.longitude,
-                             dist))
+            # check if we farm pokemons
+            if self.pokebot.config.mode in ['all', 'pokemon']:
+                # update wild pokemons
+                for wpokemon in cell.wild_pokemons:
+                    self.update_item_to_dict(DataType.WILD_POKEMON, wpokemon, wpokemon.latitude, wpokemon.longitude)
 
-            # update nearby pokemons
-            for npokemon in cell.nearby_pokemons:
-                npokemon_pos = LatLng.from_point(Cell(CellId(cell.s2_cell_id)).get_center())
-                dist = Coordinates.distance_haversine_km(*self.loc.get_lat_lng(), npokemon_pos.lat().degrees, npokemon_pos.lng().degrees)
-                self.get_list_from_dict(DataType.NEARBY_POKEMON).append(
-                    DictData(self.get_counter(),
-                             DataType.NEARBY_POKEMON,
-                             self.get_action_class(DataType.NEARBY_POKEMON)(self.pokebot, npokemon),
-                             npokemon,
-                             npokemon_pos.lat().degrees,
-                             npokemon_pos.lng().degrees,
-                             dist))
+                # update catchable pokemon
+                for cpokemon in cell.catchable_pokemons:
+                    self.update_item_to_dict(DataType.CATCHABLE_POKEMON, cpokemon, cpokemon.latitude, cpokemon.longitude)
+
+                # update nearby pokemons
+                """
+                for npokemon in cell.nearby_pokemons:
+                    npokemon_pos = LatLng.from_point(Cell(CellId(cell.s2_cell_id)).get_center())
+                    self.update_item_to_dict(DataType.NEARBY_POKEMON, npokemon, npokemon_pos.lat().degrees, npokemon_pos.lng().degrees)
+                """
+
+        # print all pokemons close by
+        """
+        pokes = self.get_pokemons()
+        for poke in pokes:
+            duplicates = [pokemon for pokemon in pokes if pokemon.distance == poke.distance]
+            print('-------------------------------------')
+            print(duplicates)
+            print('-------------------------------------')
+        """
 
     def execute_actions(self):
         """
@@ -198,7 +217,18 @@ class DataManager(object):
         # execute all actions
         items_to_execute_action = self.sorted_items(self.pokebot.config.mode)
         for item in items_to_execute_action:
-            item.try_action()
+            if item.action.check_action():
+                item.try_action()
+                # delete item if action is successeded
+                list_ = self.get_list_from_dict(item.data_type)
+                list_.remove(item)
+                
+
+
+    def get_pokemons(self):
+        return self.get_list_from_dict(DataType.WILD_POKEMON) \
+             + self.get_list_from_dict(DataType.CATCHABLE_POKEMON) \
+             + self.get_list_from_dict(DataType.NEARBY_POKEMON)
 
     def items(self, mode):
         """ available modes all|pokemon|pokestop

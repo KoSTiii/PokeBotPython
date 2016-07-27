@@ -100,8 +100,10 @@ class ClosestStepper(Stepper):
         """
         return max distance if object distance > maxdistance
         """
-        self.logger.debug('Distance: %s', clamp(self.items[0].distance, 0, maxdistance))
-        return clamp(self.items[0].distance, 0, maxdistance)
+        if self.items:
+            self.logger.debug('Distance: %s', clamp(self.items[0].distance, 0, maxdistance))
+            return clamp(self.items[0].distance, 0, maxdistance)
+        return super().get_distance(maxdistance)
 
     """ Return course to the closest object
     """
@@ -117,7 +119,7 @@ class ClosestStepper(Stepper):
 
             return course
         else:
-            return Stepper.get_course(self)
+            return super().get_course()
 
 
 """ Calculate the best route to go find pokemons and forts
@@ -126,7 +128,7 @@ if nothing is close by use Stepper class to move
 class DijkstraStepper(Stepper):
 
     def __init__(self, pokebot):
-        Stepper.__init__(self, pokebot)
+        super().__init__(pokebot)
 
     def get_course(self):
         return 0
