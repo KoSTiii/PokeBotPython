@@ -26,7 +26,6 @@ class Action(ABC):
         # set from dict data
         self.dict_data = None
 
-
     def do_action(self):
         """
         Do action if check_action() return True
@@ -90,7 +89,7 @@ class FortPokestopAction(Action):
 
     def _make_action(self):
         fort_name = self._fort_info()
-        self.logger.info(Fore.YELLOW + 'Spining pokestop (%s) at position (%s,%s)', 
+        self.logger.info(Fore.YELLOW + 'Spining pokestop (%s) at position (%0.7f,%0.7f)', 
                          fort_name,
                          self.data.latitude,
                          self.data.longitude)
@@ -102,7 +101,7 @@ class FortPokestopAction(Action):
         resp = self.pokeapi.send_requests()
         # result is not success (1) or inventory full (4)
         if resp.result not in [1, 4]:
-            self.logger.info(Fore.RED + 'Coudnt spin pokestop (%s) at (%s, %s), response code %s', 
+            self.logger.info(Fore.RED + 'Coudnt spin pokestop (%s) at (%0.7f, %0.7f), response code %s', 
                              self.data.id,
                              self.data.latitude,
                              self.data.longitude,
@@ -192,7 +191,7 @@ class CatchPokemonAction(Action):
     def _make_action(self):
         pokemon_id = self._get_pokemon_id()
 
-        self.logger.info(Fore.YELLOW + 'Trying to catch (%s) at position (%s,%s)', 
+        self.logger.info(Fore.YELLOW + 'Trying to catch (%s) at position (%0.7f,%0.7f)', 
                          PokemonId.Name(pokemon_id),
                          self.data.latitude,
                          self.data.longitude)
@@ -232,7 +231,7 @@ class CatchPokemonAction(Action):
 
             # handle response
             if catch_pokemon_response.status == CatchPokemonResponse.CATCH_ERROR:
-                self.logger.info(Fore.RED + 'Coudnt catch pokemon (%s) at (%s, %s), response code %s', 
+                self.logger.info(Fore.RED + 'Coudnt catch pokemon (%s) at (%0.7f, %0.7f), response code %s', 
                                   PokemonId.Name(wpokemon.pokemon_data.pokemon_id),
                                   wpokemon.latitude,
                                   wpokemon.longitude,
@@ -275,5 +274,11 @@ class WildPokemonCatchAction(CatchPokemonAction):
     def check_action(self):
         """
         Check action if is possible to execute before execution
+        """
+        return False
+
+    def is_active(self):
+        """
+        wild pokemon is only for lookup
         """
         return False

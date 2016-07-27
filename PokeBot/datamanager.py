@@ -217,6 +217,7 @@ class DataManager(object):
         # execute all actions
         items_to_execute_action = self.sorted_items(self.pokebot.config.mode)
         for item in items_to_execute_action:
+            # check if we can execute action
             if item.action.check_action():
                 item.try_action()
                 # delete item if action is successeded

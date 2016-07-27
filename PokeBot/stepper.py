@@ -38,7 +38,7 @@ class Stepper(object):
     def get_course(self):
         """ return heading course in deggress (0 - 360)
         """
-        random_course = random.randint(-30, 30)
+        random_course = random.randint(-45, 45)
         course = self._last_course + random_course
 
         if course > 360:
@@ -75,7 +75,7 @@ class Stepper(object):
                                           course,
                                           distance)
         
-        self.logger.debug('Moved %sm, course %s degree in %s seconds. From position (%s, %s) to position (%s, %s)',
+        self.logger.debug('Moved %0.2fm, course %s degree in %0.2f seconds. From position (%0.7f, %0.7f) to position (%0.7f, %0.7f)',
             distance, course, delta_time, self.loc.get_latitude(), self.loc.get_longitude(), *new_pos)
         
         self.loc.set_location(*new_pos, 0)
@@ -112,7 +112,7 @@ class ClosestStepper(Stepper):
             destination = self.items[0]
             course = Coordinates.angle_between_coords(*self.loc.get_lat_lng(), *destination.location)
 
-            self.logger.info('Walking to (%s, %s, %sm) which is %s', 
+            self.logger.info('Walking to (%0.7f, %0.7f, %0.2fm) which is %s', 
                              *destination.location,
                              destination.distance,
                              destination.data_type.name)
