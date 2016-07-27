@@ -38,7 +38,7 @@ class Stepper(object):
     def get_course(self):
         """ return heading course in deggress (0 - 360)
         """
-        random_course = random.randint(-60, 60)
+        random_course = random.randint(-30, 30)
         course = self._last_course + random_course
 
         if course > 360:

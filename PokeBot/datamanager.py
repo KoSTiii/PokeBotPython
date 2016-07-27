@@ -238,6 +238,7 @@ class DataManager(object):
             result += self.get_list_from_dict(DataType.FORT_POKESTOP)
 
         if mode in ['all', 'pokemon']:
+            # we can catch only catchable pokemons
             result += self.get_list_from_dict(DataType.WILD_POKEMON) \
                     + self.get_list_from_dict(DataType.CATCHABLE_POKEMON) \
                     + self.get_list_from_dict(DataType.NEARBY_POKEMON)

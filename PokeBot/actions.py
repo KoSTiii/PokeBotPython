@@ -271,3 +271,9 @@ class WildPokemonCatchAction(CatchPokemonAction):
         return pokemon id
         """
         return self.data.pokemon_data.pokemon_id
+
+    def check_action(self):
+        """
+        Check action if is possible to execute before execution
+        """
+        return False
