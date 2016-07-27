@@ -3,6 +3,7 @@ import logging
 from PokeApi.pokeapi import PokeApi
 from PokeApi.auth import GoogleLogin, PTCLogin
 from PokeApi.data import DataPlayer, DataInventory
+from PokeApi.cache import Cache
 from PokeBot.stepper import Stepper, ClosestStepper
 from PokeBot.datamanager import DataManager
 from PokeBot.algorithms import dijkstra_algorithm
@@ -21,6 +22,7 @@ class PokeBot(object):
         
         self.logger = logging.getLogger(__name__)
         self.config = config
+        self.cache = Cache('cache_{}.json'.format(self.config.username))
         
         self.auth = self._authorize()
         self.pokeapi = PokeApi(self.auth, self.config.get_location_manager())
@@ -60,6 +62,9 @@ class PokeBot(object):
         # self.awarded_badges = DataInventory(self.pokeapi, response[3].)
 
         self.initialize_new_stepper(ClosestStepper(self, self.data_manager))
+        
+        # initialize Cache
+        self.cache.cache_initialize()
     
     def initialize_new_stepper(self, stepper):
         self.stepper = stepper
@@ -83,3 +88,4 @@ class PokeBot(object):
         # move to new location
         self.stepper.take_step(delta_time)
         #dijkstra_algorithm()
+        
