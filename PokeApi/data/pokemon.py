@@ -12,8 +12,6 @@ class DataPokemon(basedata.BaseData):
         """
         """
         basedata.BaseData.__init__(self, api)
-        if not isinstance(pokemon_data, PokemonData):
-            raise ValueError('pokemon_data is not type of PokemonData')
         self.pokemon = pokemon_data
 
     def __str__(self):
@@ -28,21 +26,25 @@ class DataPokemon(basedata.BaseData):
 
     def get_cp(self):
         """
+        returns pokemons combat power
         """
         return self.pokemon.cp
 
     def get_iv(self):
         """
+        return pokemons individual stats
         """
         return (self.pokemon.individual_attack, self.pokemon.individual_defense, self.pokemon.individual_stamina)
 
-    def evolve_pokemon(self):
+    def action_evolve_pokemon(self):
         """
+        try evolve pokemon
         """
         pass
 
-    def transfer_pokemon(self):
+    def action_transfer_pokemon(self):
         """
+        try transfer pokemon
         """
         self.logger.info('Start transfering pokemon: {} [CP {}, IV {}]'
                          .format(self.get_pokemon_name(), self.get_cp(), str(self.get_iv())))

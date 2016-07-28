@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 
 from colorama import Fore
 
+from PokeApi.helper import print_items_awarded, print_capture_award
 # FortPokestopAction
 from POGOProtos.Inventory_pb2 import ItemId
 from POGOProtos.Networking.Responses_pb2 import FortSearchResponse
@@ -118,21 +119,9 @@ class FortPokestopAction(Action):
         return True
 
     def _reward_log(self, resp):
-        self.logger.info(Fore.GREEN + 'Loot:')
-        self.logger.info(Fore.GREEN + '%s xp', resp.experience_awarded)
-
-        temp_items = {}
-        for item in resp.items_awarded:
-            if str(item.item_id) not in temp_items.keys():
-                temp_items[str(item.item_id)] = item.item_count
-            else:
-                temp_items[str(item.item_id)] += item.item_count
-
-        for item in temp_items:      
-            self.logger.info(Fore.GREEN + '%sx %s (Total: %s)',
-                             temp_items[item],
-                             ItemId.Name(int(item)),
-                             self.pokebot.inventory.get_items_count(int(item)))
+        self.logger.info(Fore.CYAN + 'Loot:')
+        self.logger.info(Fore.CYAN + '%s xp', resp.experience_awarded)
+        print_items_awarded(self.logger, self.pokebot.inventory, resp.items_awarded)
 
 
 class CatchPokemonAction(Action):
@@ -160,9 +149,9 @@ class CatchPokemonAction(Action):
 
     def check_action(self):
         """
-        if pokemon is active and distance is less than 40
+        if pokemon is active and distance is less than 50
         """
-        if self.is_active() and self.dict_data.distance <= 40:
+        if self.is_active() and self.dict_data.distance <= 50:
             return True
         return False
 
@@ -185,7 +174,8 @@ class CatchPokemonAction(Action):
         if pokeball == -1:
             # we are out of pokeballs
             self.logger.info(Fore.RED + 'Out of pokeballs :(')
-            raise ValueError('Out of pokeballs')          
+            raise ValueError('Out of pokeballs')
+        self.logger.info('Using Pokeball... (Total: %s)', pokeballs_count[pokeball])
         return pokeball
 
     def _make_action(self):
@@ -238,9 +228,9 @@ class CatchPokemonAction(Action):
                                   CatchPokemonResponse.CatchStatus.Name(catch_pokemon_response.result))
                 return False
             elif catch_pokemon_response.status == CatchPokemonResponse.CATCH_ESCAPE:
-                self.logger.info(Fore.RED + 'Pokemon %s escaped', PokemonId.Name(wpokemon.id))
+                self.logger.info(Fore.RED + 'Pokemon %s escaped', PokemonId.Name(wpokemon.pokemon_data.pokemon_id))
             elif catch_pokemon_response.status == CatchPokemonResponse.CATCH_FLEE:
-                self.logger.info(Fore.RED + 'Pokemon %s fleed', PokemonId.Name(wpokemon.id))
+                self.logger.info(Fore.RED + 'Pokemon %s fleed', PokemonId.Name(wpokemon.pokemon_data.pokemon_id))
             elif catch_pokemon_response.status == CatchPokemonResponse.CATCH_MISSED:
                 self.logger.info('Missed pokeball, retrying...')
                 self.catch_try += 1
@@ -250,6 +240,8 @@ class CatchPokemonAction(Action):
                 self.logger.info(Fore.YELLOW + 'Captured pokemon (%s) [CP %s]', 
                                  PokemonId.Name(wpokemon.pokemon_data.pokemon_id),
                                  wpokemon.pokemon_data.cp)
+                self.logger.info(Fore.CYAN + 'Capture award:')
+                print_capture_award(self.logger, catch_pokemon_response.capture_award)
                 return True
             return False
 

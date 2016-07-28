@@ -1,5 +1,6 @@
-import datetime
+from datetime import datetime
 
+from PokeApi.helper import date_format
 from PokeApi.data import basedata
 from POGOProtos.Data_pb2 import PlayerData
 
@@ -31,8 +32,8 @@ class DataPlayer(basedata.BaseData):
     def get_creation_time(self):
         """
         """
-        return datetime.datetime.fromtimestamp(
-            self.data.creation_timestamp_ms / 1000.0)
+        creation_time = datetime.fromtimestamp(self.data.creation_timestamp_ms / 1000.0)
+        return date_format(creation_time)
 
     def get_username(self):
         """
@@ -56,8 +57,15 @@ class DataPlayer(basedata.BaseData):
 
     def get_currencies(self):
         """
+        retrun curencies in dict
         """
-        return self.data.currencies
+        curr = dict()
+        for currency in self.data.currencies:
+            if currency.amount:
+                curr[currency.name] = currency.amount
+            else:
+                curr[currency.name] = 0
+        return curr
 
     def get_contact_settings(self):
         """

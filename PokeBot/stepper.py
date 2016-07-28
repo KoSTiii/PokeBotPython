@@ -75,7 +75,7 @@ class Stepper(object):
                                           course,
                                           distance)
         
-        self.logger.debug('Moved %0.2fm, course %s degree in %0.2f seconds. From position (%0.7f, %0.7f) to position (%0.7f, %0.7f)',
+        self.logger.info('Moved %0.2fm, course %s degree in %0.2f seconds. From position (%0.7f, %0.7f) to position (%0.7f, %0.7f)',
             distance, course, delta_time, self.loc.get_latitude(), self.loc.get_longitude(), *new_pos)
         
         self.loc.set_location(*new_pos, 0)

@@ -2,7 +2,7 @@ import logging
 
 from PokeApi.pokeapi import PokeApi
 from PokeApi.auth import GoogleLogin, PTCLogin
-from PokeApi.data import DataPlayer, DataInventory
+from PokeApi.data import DataPlayer, DataInventory, InventoryType
 from PokeApi.cache import Cache
 from PokeBot.stepper import Stepper, ClosestStepper
 from PokeBot.datamanager import DataManager
@@ -31,7 +31,6 @@ class PokeBot(object):
         self.player = None
         self.inventory = None
         self.data_manager = None
-        self.initialize()
 
     def _authorize(self):
         """ Authorize account with sprecified info from json file
@@ -60,6 +59,31 @@ class PokeBot(object):
             raise ValueError('%s: provider is not supported. Supported providers: %s',
                              self.config.provider, SUPPORTED_PROVIDERS)
 
+    def _print_account_info(self):
+        self.logger.info('--------------------')
+        self.logger.info('')
+        self.logger.info('Player: %s', self.player.get_username())
+        self.logger.info('Level: %s', self.inventory.get_player_stats().level)
+        self.logger.info('Acccount Creation: %s', self.player.get_creation_time())
+        self.logger.info('Bag Storage: %s/%s', 
+                          self.inventory.get_item_storage(),
+                          self.player.get_max_item_storage())
+        self.logger.info('Pokemon Storage: %s/%s',
+                          self.inventory.get_pokemon_storage(),
+                          self.player.get_max_pokemon_storage())
+
+        currencies = self.player.get_currencies()
+        for curr in currencies:
+            self.logger.info('%s: %s', curr, currencies[curr])
+
+        pokeballs = self.inventory.get_pokeball_stock()
+        self.logger.info('PokeBalls: %s', pokeballs[0])
+        self.logger.info('GreatBalls: %s', pokeballs[1])
+        self.logger.info('UltraBalls: %s', pokeballs[2])
+        self.logger.info('')
+        self.logger.info('Mode: ' + self.config.mode)
+        self.logger.info('--------------------')
+
     def initialize(self):
         """ Initialize bot
         """
@@ -83,6 +107,9 @@ class PokeBot(object):
         self.cache.add_cache('login.token', self.auth.access_token)
         self.cache.add_cache('login.provider', self.auth.provider)
         self.cache.save()
+
+        self._print_account_info()
+        
     
     def initialize_new_stepper(self, stepper):
         self.stepper = stepper
@@ -101,11 +128,12 @@ class PokeBot(object):
         map_cells = hearthbeat_response[4].map_cells
         # update all data for pokemon, forts, ...
         self.data_manager.update(map_cells)
-        # execute actions
-        self.data_manager.execute_actions()
         # move to new location
         self.stepper.take_step(delta_time)
-        #dijkstra_algorithm()
+        # execute actions
+        self.data_manager.execute_actions()
+        # delete all data
+        self.data_manager.reset_dict_data()
 
         self.cache.add_cache('location', '{},{}'.format(*self.pokeapi.location_manager.get_lat_lng()))
         self.cache.save()

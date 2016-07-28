@@ -30,7 +30,6 @@ class DictData(object):
         self.distance = distance
         self.action.dict_data = self
         # check if this item is active
-        self.active = True
     
     def __str__(self):
         return str('DictData: id({}) type({})'.format(self.unique_id, str(self.data_type.name)))
@@ -38,17 +37,14 @@ class DictData(object):
     def __eq__(self, other):
         return self.unique_id == other.unique_id
 
-    def update_active(self):
-        self.active = self.action.is_active()
+    def is_active(self):
+        return self.action.is_active()
 
     def try_action(self):
         """
         Try complete action
         """
         return self.action.do_action()
-            # self.active = False
-            # return True
-        # return False
 
 
 class DataManager(object):
@@ -96,6 +92,9 @@ class DataManager(object):
 
     def reset_counter(self):
         self.unique_counter = 0
+
+    def reset_dict_data(self):
+        self.dict = self.default_dict_values()
     
     def update_item_to_dict(self, item_type, item, item_lat, item_lng):
         """
@@ -111,7 +110,6 @@ class DataManager(object):
         if list_items:
             list_items[0].distance = dist
             list_items[0].data.CopyFrom(item)
-            list_items[0].update_active()
         # create new dict_data
         else:
             dict_data = DictData(self.get_counter(),
@@ -121,7 +119,6 @@ class DataManager(object):
                                  item_lat,
                                  item_lng,
                                  dist)
-            dict_data.update_active()
             self.get_list_from_dict(item_type).append(dict_data)
 
     def update_forts(self, fort):
@@ -244,7 +241,7 @@ class DataManager(object):
                     + self.get_list_from_dict(DataType.CATCHABLE_POKEMON) \
                     + self.get_list_from_dict(DataType.NEARBY_POKEMON)
         # return result
-        return [item for item in result if item.active]
+        return [item for item in result if item.is_active()]
 
     def sorted_items(self, mode):
         items = self.items(mode)
