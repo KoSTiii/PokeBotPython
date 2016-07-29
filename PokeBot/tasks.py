@@ -40,5 +40,31 @@ class Tasks(object):
                         iv < release_pokemon_config.release_under_iv):
                     data_pokemon.action_transfer_pokemon()
                     pause = True
+    
+    def task_delete_items(self):
+        """
+        delete all items that are not in config or excecd this number
+        """
+        items = self.pokebot.inventory.get_item_storage()
+        pause = False
+
+        for item in items:
+            if pause:
+                time.sleep(1)
+
+            item_config = self.config.item_config.get_item_config(item)
+            if item_config:
+                # we specified maximum items to keep in inventory
+                if item_config.max_keep_items:
+                    item_del_count = item.count - item_config.max_keep_items
+
+                    # if we have more items than specifiedl then delete it
+                    if item_del_count > 0:
+                        self.pokebot.inventory.action_delete_item(item, item_del_count)
+                        pause = True
+                # if not max_keep_items then delete all        
+                elif item.count > 0:
+                    self.pokebot.inventory.action_delete_item(item, item.count)
+                    pause = True
 
         

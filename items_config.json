@@ -1,8 +1,22 @@
 {
-    "items": [
+    "blacklist_items": [
         {
-            "item_id": 101,
-            "min_keep_items": 20
+            "item_id": 101
+        },
+        {
+            "item_id": 102
+        },
+        {
+            "item_id": 103,
+            "max_keep_items": 40
+        },
+        {
+            "item_id": 201,
+            "max_keep_items": 50
+        },
+        {
+            "item_id": 701,
+            "max_keep_items": 50
         }
     ]
 }

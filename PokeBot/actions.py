@@ -115,6 +115,7 @@ class FortPokestopAction(Action):
         elif resp.result == 4:
             # TODO do something if invetory is full
             self.logger.info(Fore.RED + 'Inventory is full aborting pokestops')
+            self.pokebot.config.mode = 'pokemon'
             return False
 
         #self.logger.info('Finished spining fort (%s)', self.data.id)
@@ -199,6 +200,8 @@ class CatchPokemonAction(Action):
         # check if we have inventory full
         elif encounter_response.status == EncounterResponse.POKEMON_INVENTORY_FULL:
             self.logger.info(Fore.RED + 'Pokemon inventory is full')
+            # TODO change mode when pokemon inventory is full
+            self.pokebot.config.mode = 'pokestop'
             return False
 
         catch_rate = encounter_response.capture_probability

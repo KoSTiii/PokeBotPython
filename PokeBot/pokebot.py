@@ -134,6 +134,8 @@ class PokeBot(object):
 
         # release all useless pokemons
         self.tasks.task_transfer_pokemons()
+        # delete all useless items
+        self.tasks.task_delete_items()
 
         self.cache.add_cache('location', '{},{}'.format(*self.pokeapi.location_manager.get_lat_lng()))
         self.cache.save()

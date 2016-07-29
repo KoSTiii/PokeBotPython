@@ -104,25 +104,29 @@ class ItemsConfig(object):
 
         items_cfg = cls()
         
-        for item in fjson['items']:
+        for item in fjson['blacklist_items']:
             item_cfg = ItemsConfig.ItemConfig()
             if check_item_id(item['item_id']):
                 item_cfg.item_id = item['item_id']
-                item_cfg.min_keep_items = item['min_keep_items'] or None
-                items_cfg.items.append(item_cfg)
+                item_cfg.max_keep_items = item['max_keep_items'] if 'max_keep_items' in item else None
+                items_cfg.blacklist_items.append(item_cfg)
             else:
                 raise ValueError
         return items_cfg
 
     def __init__(self):
-        self.items = []
+        self.blacklist_items = []
+
+    def get_item_config(self, item_id):
+        items = [item for item in self.blacklist_items if item.item_id == item_id] or None
+        return items[0] if items and len(items) > 0 else None
 
 
     class ItemConfig(object):
 
         def __init__(self):
             self.item_id = None
-            self.min_keep_items = None
+            self.max_keep_items = None
 
 
 class PokemonConfig(object):

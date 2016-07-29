@@ -8,6 +8,7 @@ from PokeApi.helper import print_items_awarded
 from PokeApi.data import basedata
 from POGOProtos import Inventory_pb2
 from POGOProtos.Inventory_pb2 import ItemId
+from POGOProtos.Networking.Responses_pb2 import RecycleInventoryItemResponse
 
 class InventoryType(Enum):
     PLAYER_STATS = 'player_stats'
@@ -107,8 +108,20 @@ class DataInventory(basedata.BaseData):
         ultraball = self.get_items_count(Inventory_pb2.ITEM_ULTRA_BALL)
         return [pokeball, greatball, ultraball]
 
-    def action_delete_item(self, item_id, count):
-        pass
+    def action_delete_item(self, item, count):
+        self.logger.info(Fore.YELLOW + 'Recycling item %sx %s', count, ItemId.Name(item.item_id))
+        
+        self.api.recycle_inventory_item(item_id=item.item_id, count=count)
+        resp = self.api.send_requests()
+
+        if resp.result == 1:
+            self.logger.info(Fore.CYAN + 'Recycled item %sx %s', count, ItemId.Name(item.item_id))
+            item.count = resp.new_count
+        else:
+            self.logger.info(Fore.RED + 'Recycling failed for item %sx %s, Response error: %s', 
+                             count, 
+                             ItemId.Name(item.item_id),
+                             RecycleInventoryItemResponse.Result.Name(resp.result))
 
     def action_level_up_rewards(self):
         self.api.level_up_rewards(level=self._last_level)
