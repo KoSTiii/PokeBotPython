@@ -42,7 +42,6 @@ class RequestHandler(object):
         self.request_envelope.status_code = apiconfig.REQUEST_ENVELOPE_STATUS_CODE
         self.request_envelope.request_id = apiconfig.REQUEST_ENVELOPE_ID
 
-        self._set_auth()
         self.request_envelope.unknown12 = apiconfig.REQUEST_ENVELOPE_UNKNOWN12
 
         self.requests = []
@@ -55,6 +54,9 @@ class RequestHandler(object):
         if not self.hasRequests:
             self.logger.error('trying to send request envelope without requests')
             raise exceptions.IllegalStateException('You are trying to send request envelope without requests')
+
+        # set auth
+        self._set_auth()
 
         # delete all request and add new ones
         del self.request_envelope.requests[:]
