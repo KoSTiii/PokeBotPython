@@ -129,8 +129,6 @@ class PokeBot(object):
         self.stepper.take_step(delta_time)
         # execute actions
         self.data_manager.execute_actions()
-        # delete all data
-        self.data_manager.reset_dict_data()
 
         self.cache.add_cache('location', '{},{}'.format(*self.pokeapi.location_manager.get_lat_lng()))
         self.cache.save()

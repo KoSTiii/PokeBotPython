@@ -24,8 +24,7 @@ class Action(ABC):
         self.data = data
         self.pokeapi = self.pokebot.pokeapi
         self.loc = self.pokeapi.location_manager
-        # set from dict data
-        self.dict_data = None
+        self.map_cell_data = None
 
     def do_action(self):
         """
@@ -57,6 +56,8 @@ class FortPokestopAction(Action):
     """
     Action for spining the pokestop
     """
+    def __init__(self, pokebot, data):
+        super().__init__(pokebot, data)
 
     def is_active(self):
         """
@@ -77,7 +78,7 @@ class FortPokestopAction(Action):
         """
         if pokestop is acvtive and distance is less than 40
         """
-        if self.is_active() and self.dict_data.distance <= 40:
+        if self.is_active() and self.map_cell_data.distance <= 40:
             return True
         return False
 
@@ -130,7 +131,7 @@ class CatchPokemonAction(Action):
     """
 
     def __init__(self, pokebot, data):
-        Action.__init__(self, pokebot, data)
+        super().__init__(pokebot, data)
         self.catch_try = 0
         self.last_used_pokeball = 1
 
@@ -151,7 +152,7 @@ class CatchPokemonAction(Action):
         """
         if pokemon is active and distance is less than 50
         """
-        if self.is_active() and self.dict_data.distance <= 50:
+        if self.is_active() and self.map_cell_data.distance <= 50:
             return True
         return False
 
