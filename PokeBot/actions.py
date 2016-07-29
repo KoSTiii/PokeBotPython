@@ -165,17 +165,17 @@ class CatchPokemonAction(Action):
     def _choose_pokeball(self, catch_rate):
         pokeballs_count = self.pokebot.inventory.get_pokeball_stock()
         pokeballs_count[self.last_used_pokeball] -= self.catch_try
-        pokeball = 1
+        pokeball = 0
 
         for i in range(3):
             if pokeballs_count[i] > 0:
                 pokeball = i + 1
                 break
-        if pokeball == -1:
+        if pokeball == 0:
             # we are out of pokeballs
             self.logger.info(Fore.RED + 'Out of pokeballs :(')
             raise ValueError('Out of pokeballs')
-        self.logger.info('Using Pokeball... (Total: %s)', pokeballs_count[pokeball])
+        self.logger.info('Using Pokeball... (Total: %s)', pokeballs_count[pokeball-1])
         return pokeball
 
     def _make_action(self):

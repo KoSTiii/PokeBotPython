@@ -1,3 +1,4 @@
+import time
 from enum import Enum
 
 from s2sphere import LatLng, Cell, CellId
@@ -15,6 +16,53 @@ class DataType(Enum):
     WILD_POKEMON = 2
     CATCHABLE_POKEMON = 3
     NEARBY_POKEMON = 4
+
+
+class MapCell(object):
+
+    MAP_CELL_CACHE_TIME = 120 # if cell doesnt get updated in this period then delete
+
+    def __init__(self, cell):
+        self.s2_cell_id = cell.s2_cell_id
+        self.creation_time = time.time()
+        self.cell = cell
+
+    def __eq__(self, other):
+        return self.s2_cell_id == other.s2_cell_id
+
+    def is_expired(self):
+        diff = time.time() - self.creation_time
+        if diff > self.MAP_CELL_CACHE_TIME:
+            return True
+        return False
+
+    def compare_to_proto_map_cell(self, map_cell):
+        """
+        compare if this MapCell is same as proto map cell
+        """
+        return self.s2_cell_id == map_cell.s2_cell_id
+
+    def update(self, cell):
+        """
+        update cell if we have same cell id
+        """
+        if self.s2_cell_id == cell.s2_cell_id:
+            self.cell.CopyFrom(cell)
+
+    def get_map_objects(self, data_type):
+        """
+        return map objects from this cell if we have something from specifield DataType 
+        """
+        if data_type in [DataType.FORT_GYM, DataType.FORT_POKESTOP] and self.cell.HasField('forts'):
+            fort_type = Gym_pb2.GYM if data_type == DataType.FORT_GYM else Gym_pb2.CHECKPOINT
+            return [fort for fort in self.cell.forts if fort.enabled and fort.type == fort_type]
+        elif data_type == DataType.WILD_POKEMON and self.cell.HasField('wild_pokemons'):
+            return [wpokemon for wpokemon in self.cell.wild_pokemons]
+        elif data_type == DataType.CATCHABLE_POKEMON and self.cell.HasField('catchable_pokemons'):
+            return [cpokemon for cpokemon in self.cell.catchable_pokemons]
+        elif data_type == DataType.NEARBY_POKEMON and self.cell.HasField('nearby_pokemons'):
+            return [npokemon for npokemon in self.cell.nearby_pokemons]
+        return []
 
 
 class DictData(object):

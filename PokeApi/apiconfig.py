@@ -16,6 +16,7 @@ PTC_CLIENT_SECRET = 'w8ScCUXJQc6kXKw8FiOhd8Fixzht18Dq3PEVkUCP5ZPxtgyWsbTvWHFLm2w
 
 """ Configuration for RequestEnvelope
 """
+API_URL = 'https://pgorelease.nianticlabs.com/plfe/rpc'
 REQUEST_ENVELOPE_STATUS_CODE = 2
 REQUEST_ENVELOPE_ID = 1469378659230941192
 REQUEST_ENVELOPE_UNKNOWN12 = 989

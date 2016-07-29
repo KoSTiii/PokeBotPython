@@ -16,6 +16,8 @@ class Auth(object):
         """
         self.access_token = None
         self.provider = None
+        self.username = None
+        self.password = None
         self.session = requests.session()
         self.session.headers.update({'User-Agent': 'Niantic App'})
         self.session.verify = False
@@ -35,6 +37,19 @@ class Auth(object):
 
         return authInfo
 
+    def authorize(self):
+        """
+        try to authorize new or existing connection
+        """
+        from PokeApi.auth import GoogleLogin, PTCLogin
+        
+        if self.provider == "ptc":
+            auth = PTCLogin().login_user(self.username, self.password)
+        else:
+            auth = GoogleLogin().login_user(self.username, self.password)
+        self.access_token = auth.access_token
+
+
 
 class Login(ABC):
     """ Abstract base class for login to server
@@ -53,11 +68,15 @@ class Login(ABC):
         """
         pass
 
+    def set_auth_credentials(self, username, password):
+        self.auth.username = username
+        self.auth.password = password
+
     def login_token(self, token):
         """ Login into server with token
         @return auth object
         """
-        self.logger.info('Success login with token=%s...' % token)
+        self.logger.info('Success login with token=%s...', token)
         self.auth.access_token = token
         return self.auth
 
@@ -66,4 +85,4 @@ class Login(ABC):
         """ Login into server with username and password
         @return auth object
         """
-        pass
+        self.set_auth_credentials(username, password)

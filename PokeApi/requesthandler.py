@@ -11,8 +11,6 @@ class RequestHandler(object):
     """ Main request handler class for handling all messages to server
     """
 
-    API_URL = 'https://pgorelease.nianticlabs.com/plfe/rpc'
-
     def __init__(self, auth):
         """ Initialize request handler
         """
@@ -22,7 +20,7 @@ class RequestHandler(object):
         self.logger = logging.getLogger(__name__)
         self.auth = auth
         self.last_auth_ticket = None
-        self.api_endpoint = self.API_URL
+        self.api_endpoint = apiconfig.API_URL
         self.request_envelope = None
         self.requests = []
         self.hasRequests = False
@@ -31,6 +29,12 @@ class RequestHandler(object):
 
         self.reset_builder()
 
+    def _set_auth(self):
+        if self.last_auth_ticket is not None and self.last_auth_ticket.expire_timestamp_ms > int(round(time.time() * 1000)):
+            self.request_envelope.auth_ticket.CopyFrom(self.last_auth_ticket)
+        else:
+            self.request_envelope.auth_info.CopyFrom(self.auth.get_auth_info_object())
+
     def reset_builder(self):
         """ reset the builder and ready for new set of requests
         """
@@ -38,10 +42,7 @@ class RequestHandler(object):
         self.request_envelope.status_code = apiconfig.REQUEST_ENVELOPE_STATUS_CODE
         self.request_envelope.request_id = apiconfig.REQUEST_ENVELOPE_ID
 
-        if self.last_auth_ticket is not None and self.last_auth_ticket.expire_timestamp_ms > int(round(time.time() * 1000)):
-            self.request_envelope.auth_ticket.CopyFrom(self.last_auth_ticket)
-        else:
-            self.request_envelope.auth_info.CopyFrom(self.auth.get_auth_info_object())
+        self._set_auth()
         self.request_envelope.unknown12 = apiconfig.REQUEST_ENVELOPE_UNKNOWN12
 
         self.requests = []
@@ -98,20 +99,25 @@ class RequestHandler(object):
         Handling status codes from server response
         """
         # not complete message
-        if response_envelope.status_code is 100:
+        if response_envelope.status_code == 100:
             self.logger.error('Response retuned status code 100 (not complete message)')
             raise Exception('Server returned status_code=100 (not complete message)')
         # if error occured when sending
-        if response_envelope.status_code is 102:
-            self.logger.error('not logged in or expired token')
-            raise exceptions.NotLoggedInException('Not logged in exception')
+        if response_envelope.status_code == 102:
+            self.logger.debug('not logged in or expired token.')
+            self.auth.authorize()
+            self.last_auth_ticket = AuthTicket() # delete last ticket
+            self._set_auth()
+            self.api_endpoint = apiconfig.API_URL
+            return self.send_requests()
+            #raise exceptions.NotLoggedInException('Not logged in exception')
         # 52 status code means that we hit the data cap. So we wait 2 seconds and try again
-        if response_envelope.status_code is 52:
+        if response_envelope.status_code == 52:
             self.logger.debug('Hit data cap. waiting 5 secods and try again')
             time.sleep(5)
             return self.send_requests()
         # status_code 53 suposed to be api endpoint change. after 5 retries raise exception (pomeni spremeni server)
-        if response_envelope.status_code is 53:
+        if response_envelope.status_code == 53:
             self.api_endpoint = ('https://%s/rpc' % response_envelope.api_url)
             self.logger.debug('changed api endpoint to: %s', self.api_endpoint)
             return self.send_requests()

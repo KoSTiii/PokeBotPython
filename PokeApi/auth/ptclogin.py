@@ -33,6 +33,7 @@ class PTCLogin(Login):
         """ Login into server with username and password
         @return auth object
         """
+        super().login_user(username, password)
         self.logger.info('Started logging into ptc services with username=%s', username)
 
         head = {'User-Agent': 'niantic'}

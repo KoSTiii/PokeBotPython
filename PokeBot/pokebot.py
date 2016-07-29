@@ -17,9 +17,6 @@ class PokeBot(object):
     def __init__(self, config):
         """ Initialize the Master PokeBot
         """
-        if not isinstance(config, BotConfig):
-            raise TypeError('arg config is not type of class Config')
-        
         self.logger = logging.getLogger(__name__)
         self.config = config
         self.cache = Cache('cache_{}.json'.format(self.config.username))

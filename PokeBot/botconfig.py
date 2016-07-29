@@ -26,6 +26,12 @@ class BotConfig(object):
     """ BotConfig is configuration for bot
     """
 
+    def to_JSON(self):
+        """
+        convert class to json
+        """
+        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+
     @classmethod
     def from_file(cls, json_file):
         """ Initialize BotConfigs from json file

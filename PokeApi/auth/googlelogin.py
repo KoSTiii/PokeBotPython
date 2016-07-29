@@ -31,7 +31,8 @@ class GoogleLogin(Login):
         """ Login into server with username and password
         @return auth object
         """
-        self.logger.info('Started logging into google services with username=%s' % username)
+        super().login_user(username, password)
+        self.logger.info('Started logging into google services with username=%s', username)
 
         login = perform_master_login(username, password, apiconfig.GOOGLE_LOGIN_ANDROID_ID)
         login = perform_oauth(username, login.get('Token', ''), apiconfig.GOOGLE_LOGIN_ANDROID_ID, apiconfig.GOOGLE_LOGIN_SERVICE, apiconfig.GOOGLE_LOGIN_APP, apiconfig.GOOGLE_LOGIN_CLIENT_SIG)

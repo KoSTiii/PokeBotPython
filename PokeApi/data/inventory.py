@@ -100,7 +100,7 @@ class DataInventory(basedata.BaseData):
         resp = self.api.send_requests()
         
         if resp.result == 1:
-            self.logger.info(Fore.GREEN + 'Level Up Rewards: ')
+            self.logger.info(Fore.GREEN + 'Level Up Rewards (Level: ): ', self._last_level)
             print_items_awarded(self.logger, self, resp.items_awarded)
 
     def action_delete_item(self, item_id, count):
