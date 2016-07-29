@@ -1,3 +1,5 @@
+from colorama import Fore
+
 from PokeApi.data import basedata
 import POGOProtos.Enums_pb2 as Enums_pb2
 from POGOProtos.Data_pb2 import PokemonData
@@ -11,30 +13,34 @@ class DataPokemon(basedata.BaseData):
     def __init__(self, api, pokemon_data):
         """
         """
-        basedata.BaseData.__init__(self, api)
-        self.pokemon = pokemon_data
+        basedata.BaseData.__init__(self, api, pokemon_data)
 
     def __str__(self):
         """
         """
-        return str(self.pokemon)
+        return str(self.data)
 
     def get_pokemon_name(self):
         """
         """
-        return Enums_pb2.PokemonId.Name(self.pokemon.pokemon_id)
+        return Enums_pb2.PokemonId.Name(self.data.pokemon_id)
 
     def get_cp(self):
         """
         returns pokemons combat power
         """
-        return self.pokemon.cp
+        return self.data.cp
 
     def get_iv(self):
         """
         return pokemons individual stats
         """
-        return (self.pokemon.individual_attack, self.pokemon.individual_defense, self.pokemon.individual_stamina)
+        return (self.data.individual_attack, self.data.individual_defense, self.data.individual_stamina)
+
+    def get_iv_percentage(self):
+        iv = self.get_iv()
+        total_IV = iv[0] + iv[1] + iv[2]
+        return round((total_IV / 45.0), 2)
 
     def action_evolve_pokemon(self):
         """
@@ -46,17 +52,17 @@ class DataPokemon(basedata.BaseData):
         """
         try transfer pokemon
         """
-        self.logger.info('Start transfering pokemon: {} [CP {}, IV {}]'
-                         .format(self.get_pokemon_name(), self.get_cp(), str(self.get_iv())))
+        self.logger.info(Fore.GREEN + 'Transfering pokemon: %s [CP %s][IV %s/%s/%s][Potencial: %s]',
+                         self.get_pokemon_name(), self.get_cp(), *self.get_iv(), self.get_iv_percentage())
 
-        self.api.release_pokemon(pokemon_id=self.pokemon.pokemon_id)
+        self.api.release_pokemon(pokemon_id=self.data.id)
         response = self.api.send_reaquests()
 
         # response is other than success
         if response.result != 1:
-            self.logger.error('Coundnt transfer pokemon {}, Returned status {}'
-                              .format(self.get_pokemon_name(), ReleasePokemonResponse.Result.Name(response.result)))  
+            self.logger.error(Fore.RED + 'Coundnt transfer pokemon %s, Returned status %s',
+                              self.get_pokemon_name(), ReleasePokemonResponse.Result.Name(response.result))
 
-        self.logger.info('Succesfuly transfered pokemon {}. Was awarded {} candy'
-                         .format(self.get_pokemon_name(), response.candy_awarded))
+        self.logger.info(Fore.CYAN + 'Transfer succeded pokemon %s. Was awarded %s candy',
+                         self.get_pokemon_name(), response.candy_awarded)
         return response

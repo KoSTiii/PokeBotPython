@@ -105,8 +105,7 @@ class PokeBot(object):
         self.cache.add_cache('login.provider', self.auth.provider)
         self.cache.save()
 
-        self._print_account_info()
-        
+        self._print_account_info() 
     
     def initialize_new_stepper(self, stepper):
         self.stepper = stepper
@@ -125,6 +124,7 @@ class PokeBot(object):
         map_cells = hearthbeat_response[4].map_cells
         # update all data for pokemon, forts, ...
         self.data_manager.update(map_cells)
+        
         # move to new location
         self.stepper.take_step(delta_time)
         # execute actions

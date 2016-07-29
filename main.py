@@ -17,7 +17,7 @@ from POGOProtos.Networking import Requests_pb2, Responses_pb2
 from POGOProtos.Networking.Requests import Messages_pb2
 from POGOProtos.Data import Gym_pb2
 from PokeBot.pokebot import PokeBot
-from PokeBot.botconfig import BotConfig
+from PokeBot.botconfig import BotConfig, PokemonConfig, ItemsConfig
 
 from PokeBot.stepper import Stepper
 
@@ -71,7 +71,9 @@ for map_cell in map_cells:
 """
 
 # make config
-configs = BotConfig.from_file('config.json')
+itms_cfg = ItemsConfig.from_json('items_config.json')
+poks_cfg = PokemonConfig.from_json('pokemon_config.json')
+configs = BotConfig.from_file('config.json', itms_cfg, poks_cfg)
 # BOT TEST
 bot = PokeBot(configs[0])
 bot.initialize()

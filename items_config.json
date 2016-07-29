@@ -1,0 +1,8 @@
+{
+    "items": [
+        {
+            "item_id": 101,
+            "min_keep_items": 20
+        }
+    ]
+}

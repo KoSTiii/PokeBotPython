@@ -19,6 +19,9 @@ class DataType(Enum):
 
 
 class MapCell(object):
+    """
+    Class represent same as map cell in protos. It stores one map cell
+    """
 
     MAP_CELL_CACHE_TIME = 120 # if cell doesnt get updated in this period then delete
 
@@ -102,7 +105,6 @@ class DataManager(object):
         self.pokebot = pokebot
         self.loc = pokebot.pokeapi.location_manager
         self.action_classes = self.default_action_classes()
-
         self.map_cells = []
 
     def default_action_classes(self):
@@ -151,9 +153,9 @@ class DataManager(object):
     def update(self, map_cells):
         """ Start updating dictionary with new values or add existing values
         """
-        # update all dicts
+        # update
         for cell in map_cells:
-            # update map cells
+            # update map cells cache
             local_map_cells = [mcell for mcell in self.map_cells if mcell.s2_cell_id == cell.s2_cell_id]
             # if we already have cell then only update it
             if local_map_cells:
@@ -165,7 +167,7 @@ class DataManager(object):
         
         # delete all expired map cells
         for map_cell in self.map_cells:
-            if map_cell.is_expired:
+            if map_cell.is_expired():
                 del map_cell
 
     def execute_actions(self):

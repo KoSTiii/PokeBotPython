@@ -17,7 +17,7 @@ def maters_to_steps(meters):
 class Stepper(object):
 
     # standard deviation for steps
-    STEP_STD_DEV = 3.7873
+    STEP_STD_DEV = 2
 
     """ Initialize stepper class
     """
@@ -85,7 +85,7 @@ class Stepper(object):
 class ClosestStepper(Stepper):
 
     def __init__(self, pokebot, datamanager):
-        Stepper.__init__(self, pokebot)
+        super().__init__(pokebot)
         self.datamanager = datamanager
         self.mode = self.pokebot.config.mode
         self.items = None

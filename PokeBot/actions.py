@@ -4,7 +4,10 @@ from abc import ABC, abstractmethod
 
 from colorama import Fore
 
+from PokeApi.time import is_time_expired
+from PokeApi.data import DataPokemon
 from PokeApi.helper import print_items_awarded, print_capture_award
+from PokeBot.tasks import Tasks
 # FortPokestopAction
 from POGOProtos.Inventory_pb2 import ItemId
 from POGOProtos.Networking.Responses_pb2 import FortSearchResponse
@@ -65,9 +68,8 @@ class FortPokestopAction(Action):
         """
         if self.data.cooldown_complete_timestamp_ms:
             fort_cooldown = self.data.cooldown_complete_timestamp_ms / 1000.0
-            diff = time.time() - fort_cooldown
             # if diif is less than 0 means that fort is on cooldown
-            if diff < 0:
+            if not is_time_expired(fort_cooldown):
                 return False
         
         if self.data.enabled:
@@ -238,11 +240,15 @@ class CatchPokemonAction(Action):
                 continue
             elif catch_pokemon_response.status == CatchPokemonResponse.CATCH_SUCCESS:
                 # we sucessfuly catched pokemon
-                self.logger.info(Fore.YELLOW + 'Captured pokemon (%s) [CP %s]', 
+                cap_pok = DataPokemon(self.pokeapi, wpokemon.pokemon_data)
+                self.logger.info(Fore.YELLOW + 'Captured pokemon (%s) [CP %s][IV %s/%s/%s][Potencial %s]', 
                                  PokemonId.Name(wpokemon.pokemon_data.pokemon_id),
-                                 wpokemon.pokemon_data.cp)
+                                 cap_pok.get_cp(),
+                                 *cap_pok.get_iv(),
+                                 cap_pok.get_iv_percentage())
                 self.logger.info(Fore.CYAN + 'Capture award:')
                 print_capture_award(self.logger, catch_pokemon_response.capture_award)
+                Tasks(self.pokebot).task_transfer_pokemon(cap_pok)
                 return True
             return False
 

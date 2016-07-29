@@ -1,0 +1,17 @@
+{
+    "ignore_pokemon": [],
+    "release_pokemon": [
+        {
+            "name": "any",
+            "release_under_cp": 20,
+            "release_under_iv": 0.8,
+            "cp_iv_logic": "or"
+        },
+        {
+            "name": "Rattata",
+            "release_under_cp": 200,
+            "release_under_iv": 0.8,
+            "cp_iv_logic": "and"
+        }
+    ]
+}
