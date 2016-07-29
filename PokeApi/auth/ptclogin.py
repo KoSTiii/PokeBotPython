@@ -1,10 +1,9 @@
 """
 """
 
-import logging
-
-import json
 import re
+import json
+import logging
 import requests
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 

@@ -11,7 +11,8 @@
             "name": "Rattata",
             "release_under_cp": 200,
             "release_under_iv": 0.8,
-            "cp_iv_logic": "and"
+            "cp_iv_logic": "and",
+            "force_evlolve": 300
         }
     ]
 }

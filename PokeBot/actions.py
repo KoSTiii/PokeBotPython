@@ -235,6 +235,8 @@ class CatchPokemonAction(Action):
                 return False
             elif catch_pokemon_response.status == CatchPokemonResponse.CATCH_ESCAPE:
                 self.logger.info(Fore.RED + 'Pokemon %s escaped', PokemonId.Name(wpokemon.pokemon_data.pokemon_id))
+                self.catch_try += 1
+                continue
             elif catch_pokemon_response.status == CatchPokemonResponse.CATCH_FLEE:
                 self.logger.info(Fore.RED + 'Pokemon %s fleed', PokemonId.Name(wpokemon.pokemon_data.pokemon_id))
             elif catch_pokemon_response.status == CatchPokemonResponse.CATCH_MISSED:

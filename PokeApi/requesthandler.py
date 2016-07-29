@@ -1,5 +1,6 @@
 import time
 import logging
+import requests
 
 from PokeApi import exceptions, apiconfig
 from PokeApi.serverrequest import ServerRequest
@@ -81,6 +82,10 @@ class RequestHandler(object):
         except Exception as e:
             self.logger.error('Error sending request: %s', e)
             raise e
+        
+        if response.status_code != requests.codes.ok:
+            self.logger.debug('something went wrong. response code %s', response.status_code)
+
         try:
             # response envelope parsing
             response_envelope = ResponseEnvelope()
