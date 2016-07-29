@@ -28,25 +28,25 @@ class Stepper(object):
         self.steps = pokebot.config.steps
         self.maxsteps = pokebot.config.maxsteps
 
-        self._last_course = random.randint(0, 360)
+        self._last_bearing = random.randint(0, 360)
 
     def _update(self):
         """
         Update items each tick
         """
 
-    def get_course(self):
-        """ return heading course in deggress (0 - 360)
+    def get_bearing(self):
+        """ return heading bearing in deggress (0 - 360)
         """
-        random_course = random.randint(-45, 45)
-        course = self._last_course + random_course
+        random_bearing = random.randint(-45, 45)
+        bearing = self._last_bearing + random_bearing
 
-        if course > 360:
-            course = 360 - course
-        if course < 0:
-            course = 360 + course
-        self._last_course = course
-        return course
+        if bearing > 360:
+            bearing = 360 - bearing
+        if bearing < 0:
+            bearing = 360 + bearing
+        self._last_bearing = bearing
+        return bearing
     
     def get_speed(self):
         """ Change walk pace to make more humanish
@@ -69,14 +69,14 @@ class Stepper(object):
 
         self._update()
         distance = self.get_distance(dist_in_meters)
-        course = self.get_course()
+        bearing = self.get_bearing()
         new_pos = Coordinates.extrapolate(self.loc.get_latitude(),
                                           self.loc.get_longitude(),
-                                          course,
+                                          bearing,
                                           distance)
         
-        self.logger.info('Moved %0.2fm, course %s degree in %0.2f seconds. From position (%0.7f, %0.7f) to position (%0.7f, %0.7f)',
-            distance, course, delta_time, self.loc.get_latitude(), self.loc.get_longitude(), *new_pos)
+        self.logger.info('Moved %0.2fm, bearing %s degree in %0.2f seconds. From position (%0.7f, %0.7f) to position (%0.7f, %0.7f)',
+            distance, bearing, delta_time, self.loc.get_latitude(), self.loc.get_longitude(), *new_pos)
         
         self.loc.set_location(*new_pos, 0)
         return new_pos
@@ -105,21 +105,21 @@ class ClosestStepper(Stepper):
             return clamp(self.items[0].distance, 0, maxdistance)
         return super().get_distance(maxdistance)
 
-    """ Return course to the closest object
+    """ Return bearing to the closest object
     """
-    def get_course(self):
+    def get_bearing(self):
         if self.items:
             destination = self.items[0]
-            course = Coordinates.angle_between_coords(*self.loc.get_lat_lng(), *destination.location)
+            bearing = Coordinates.angle_between_coords(*self.loc.get_lat_lng(), *destination.location)
 
             self.logger.info('Walking to (%0.7f, %0.7f, %0.2fm) which is %s', 
                              *destination.location,
                              destination.distance,
                              destination.data_type.name)
 
-            return course
+            return bearing
         else:
-            return super().get_course()
+            return super().get_bearing()
 
 
 """ Calculate the best route to go find pokemons and forts
@@ -130,6 +130,6 @@ class DijkstraStepper(Stepper):
     def __init__(self, pokebot):
         super().__init__(pokebot)
 
-    def get_course(self):
+    def get_bearing(self):
         return 0
 
