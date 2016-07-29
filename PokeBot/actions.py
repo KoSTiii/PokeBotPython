@@ -248,7 +248,6 @@ class CatchPokemonAction(Action):
                                  cap_pok.get_iv_percentage())
                 self.logger.info(Fore.CYAN + 'Capture award:')
                 print_capture_award(self.logger, catch_pokemon_response.capture_award)
-                Tasks(self.pokebot).task_transfer_pokemon(cap_pok)
                 return True
             return False
 

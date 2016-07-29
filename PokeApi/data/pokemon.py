@@ -20,6 +20,9 @@ class DataPokemon(basedata.BaseData):
         """
         return str(self.data)
 
+    def is_egg(self):
+        return self.data.is_egg
+
     def get_pokemon_name(self):
         """
         """
@@ -56,12 +59,13 @@ class DataPokemon(basedata.BaseData):
                          self.get_pokemon_name(), self.get_cp(), *self.get_iv(), self.get_iv_percentage())
 
         self.api.release_pokemon(pokemon_id=self.data.id)
-        response = self.api.send_reaquests()
+        response = self.api.send_requests()
 
         # response is other than success
         if response.result != 1:
-            self.logger.error(Fore.RED + 'Coundnt transfer pokemon %s, Returned status %s',
+            self.logger.error(Fore.RED + 'Cound not transfer pokemon %s, Returned status %s',
                               self.get_pokemon_name(), ReleasePokemonResponse.Result.Name(response.result))
+            return None
 
         self.logger.info(Fore.CYAN + 'Transfer succeded pokemon %s. Was awarded %s candy',
                          self.get_pokemon_name(), response.candy_awarded)

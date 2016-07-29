@@ -4,6 +4,7 @@ from PokeApi.pokeapi import PokeApi
 from PokeApi.auth import GoogleLogin, PTCLogin
 from PokeApi.data import DataPlayer, DataInventory, InventoryType
 from PokeApi.cache import Cache
+from PokeBot.tasks import Tasks
 from PokeBot.stepper import Stepper, ClosestStepper
 from PokeBot.datamanager import DataManager
 from PokeBot.algorithms import dijkstra_algorithm
@@ -28,6 +29,7 @@ class PokeBot(object):
         self.player = None
         self.inventory = None
         self.data_manager = None
+        self.tasks = Tasks(self)
 
     def _authorize(self):
         """ Authorize account with sprecified info from json file
@@ -63,10 +65,10 @@ class PokeBot(object):
         self.logger.info('Level: %s', self.inventory.get_player_stats().level)
         self.logger.info('Acccount Creation: %s', self.player.get_creation_time())
         self.logger.info('Bag Storage: %s/%s', 
-                          self.inventory.get_item_storage(),
+                          self.inventory.get_item_storage_count(),
                           self.player.get_max_item_storage())
         self.logger.info('Pokemon Storage: %s/%s',
-                          self.inventory.get_pokemon_storage(),
+                          self.inventory.get_pokemon_storage_count(),
                           self.player.get_max_pokemon_storage())
 
         currencies = self.player.get_currencies()
@@ -129,6 +131,9 @@ class PokeBot(object):
         self.stepper.take_step(delta_time)
         # execute actions
         self.data_manager.execute_actions()
+
+        # release all useless pokemons
+        self.tasks.task_transfer_pokemons()
 
         self.cache.add_cache('location', '{},{}'.format(*self.pokeapi.location_manager.get_lat_lng()))
         self.cache.save()

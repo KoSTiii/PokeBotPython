@@ -55,17 +55,29 @@ class DataInventory(basedata.BaseData):
         player_stats = self.get_inventory_items(InventoryType.PLAYER_STATS)
         return player_stats[0]
 
-    def get_item_storage(self):
-        items = self.get_inventory_items(InventoryType.ITEM)
+    def get_item_storage_count(self):
+        items = self.get_item_storage()
         count = 0
         for item in items:
             count += item.count
         return count
+
+    def get_item_storage(self):
+        return self.get_inventory_items(InventoryType.ITEM)
+
+    def get_pokemon_storage_count(self):
+        pokemons = self.get_pokemon_storage()
+        return len(pokemons)
     
     def get_pokemon_storage(self):
         pokemons = self.get_inventory_items(InventoryType.POKEMON_DATA)
         poke_witout_eggs = [poke for poke in pokemons if not poke.is_egg]
-        return len(poke_witout_eggs)
+        return poke_witout_eggs
+
+    def get_eggs_storage(self):
+        pokemons = self.get_inventory_items(InventoryType.POKEMON_DATA)
+        poke_with_eggs = [poke for poke in pokemons if poke.is_egg]
+        return poke_with_eggs
 
     def get_inventory_items(self, inventory_type):
         """
@@ -95,6 +107,9 @@ class DataInventory(basedata.BaseData):
         ultraball = self.get_items_count(Inventory_pb2.ITEM_ULTRA_BALL)
         return [pokeball, greatball, ultraball]
 
+    def action_delete_item(self, item_id, count):
+        pass
+
     def action_level_up_rewards(self):
         self.api.level_up_rewards(level=self._last_level)
         resp = self.api.send_requests()
@@ -102,6 +117,3 @@ class DataInventory(basedata.BaseData):
         if resp.result == 1:
             self.logger.info(Fore.GREEN + 'Level Up Rewards (Level: ): ', self._last_level)
             print_items_awarded(self.logger, self, resp.items_awarded)
-
-    def action_delete_item(self, item_id, count):
-        pass
