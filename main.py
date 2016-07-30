@@ -84,9 +84,9 @@ while True:
     start_time = time.time()
 
     bot.update(delta_time)
-    time.sleep(2)
+    time.sleep(4)
 
     # calculate delta time
     end_time = time.time()
-    delta_time = time.time() - start_time
+    delta_time = time.time() - start_time - 1
 

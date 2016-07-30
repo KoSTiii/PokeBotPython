@@ -12,6 +12,8 @@ class Tasks(object):
         self.config = pokebot.config
         self.logger = logging.getLogger(__name__)
 
+        self.evolved_pokemons = []
+
     def task_transfer_pokemons(self):
         """
         release pokemon if all conditions are met specified in config file
@@ -41,6 +43,18 @@ class Tasks(object):
                     data_pokemon.action_transfer_pokemon()
                     pause = True
     
+    def task_evolve_pokemons(self):
+        pokemons = self.pokebot.inventory.get_pokemon_storage()
+        pokemons_to_evolve = [poke for poke in pokemons if poke not in self.evolved_pokemons]
+
+        for pokemon in pokemons_to_evolve:
+            dpoke = DataPokemon(self.pokeapi, pokemon)
+            dpoke.action_evolve_pokemon()
+            self.evolved_pokemons.append(pokemon)
+            time.sleep(2)
+
+
+
     def task_delete_items(self):
         """
         delete all items that are not in config or excecd this number

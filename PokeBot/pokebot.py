@@ -132,6 +132,8 @@ class PokeBot(object):
         # execute actions
         self.data_manager.execute_actions()
 
+        # try to evolve pokemons
+        self.tasks.task_evolve_pokemons()
         # release all useless pokemons
         self.tasks.task_transfer_pokemons()
         # delete all useless items

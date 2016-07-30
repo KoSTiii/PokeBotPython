@@ -80,6 +80,9 @@ class DataInventory(basedata.BaseData):
         poke_with_eggs = [poke for poke in pokemons if poke.is_egg]
         return poke_with_eggs
 
+    def get_pokemon_candy(self):
+        return self.get_inventory_items(InventoryType.POKEMON_FAMILY)
+
     def get_inventory_items(self, inventory_type):
         """
         retrun list of items in invetory which are type of InventoryType
